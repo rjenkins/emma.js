@@ -9,25 +9,25 @@ A fundamental problem when building any user interface is getting data into the 
 ### The Adapter Pattern
 The purpose of the adapter is to provide an abstract interface for accessing our data object.
 ```javascript
-    // Public constructor function
-    var Adapter = Emma.Adapter = function (_target) {
+// Public constructor function
+var Adapter = Emma.Adapter = function (_target) {
 
-      var target = _target;
+  var target = _target;
 
-      var getTarget = function () {
-        return target;
-      }
+  var getTarget = function () {
+    return target;
+  }
 
-      var setTarget = function (_target) {
-        target = _target;
-        return this;
-      }
+  var setTarget = function (_target) {
+    target = _target;
+    return this;
+  }
 
-      return {
-        getTarget:getTarget,
-        setTarget:setTarget
-      }
-    }
+  return {
+    getTarget:getTarget,
+    setTarget:setTarget
+  }
+}
 ```
 
 So reviewing this code we module pattern function for our adapter and it takes an argument called _target. We save the
@@ -45,75 +45,75 @@ an object in a view. Additionally our Property object retains a reference to it'
 has the getValue() and setValue() functions.
 
 ```javascript
-  // Public constructor function
-  var Property = Emma.Property = function (_id) {
+// Public constructor function
+var Property = Emma.Property = function (_id) {
 
-      // if not called with new
-      if (!(this instanceof Property)) {
-        return new Property(_id);
-      }
-
-      this.adapter;
-      this.id = _id;
+    // if not called with new
+    if (!(this instanceof Property)) {
+      return new Property(_id);
     }
 
-    // Setters provided for fluent pattern and
-    // Getters just provided for consistency with Setters
-    // but can be accessed directly as well.
-    Property.prototype.getId = function () {
-      return this.id;
-    };
+    this.adapter;
+    this.id = _id;
+}
 
-    Property.prototype.setAdapter = function (_adapter) {
-      this.adapter = _adapter;
-      return this;
-    }
+// Setters provided for fluent pattern and
+// Getters just provided for consistency with Setters
+// but can be accessed directly as well.
+Property.prototype.getId = function () {
+  return this.id;
+};
 
-    Property.prototype.getValue = function () {
-      return this.adapter.getTarget()[this.id];
-    }
+Property.prototype.setAdapter = function (_adapter) {
+  this.adapter = _adapter;
+  return this;
+}
 
-    Property.prototype.setValue = function (value) {
-      this.adapter.getTarget()[this.id] = value;
-    }
+Property.prototype.getValue = function () {
+  return this.adapter.getTarget()[this.id];
+}
+
+Property.prototype.setValue = function (value) {
+  this.adapter.getTarget()[this.id] = value;
+}
 ```
 
 ### Adding Properties to the Adapter
 Now we can go back and modify our adapter object to contain a collection of Property objects.
 ```javascript
-  // Public constructor function
- var Adapter = Emma.Adapter = function (_target) {
+// Public constructor function
+var Adapter = Emma.Adapter = function (_target) {
 
-    var target = _target;
+  var target = _target;
 
-    // Make itemProperties private as we want to ensure people can only
-    // add legitimate Property objects to list collection
-    var itemProperties = [];
+  // Make itemProperties private as we want to ensure people can only
+  // add legitimate Property objects to list collection
+  var itemProperties = [];
 
-    var addProperty = function (property) {
+  var addProperty = function (property) {
 
-      if (property.constructor != Property || property === undefined) {
-        throw "property is not a Property object"
-      }
-
-      itemProperties.push(property);
-      property.setAdapter(this);
-      return this;
-    };
-
-    var getProperties = function () {
-      return itemProperties;
+    if (property.constructor != Property || property === undefined) {
+      throw "property is not a Property object"
     }
 
-    ...
+    itemProperties.push(property);
+    property.setAdapter(this);
+    return this;
+  };
 
-    return {
-          addProperty:addProperty,
-          getProperties:getProperties,
-          getTarget:getTarget,
-          setTarget:setTarget
-    }
+  var getProperties = function () {
+    return itemProperties;
   }
+
+  ...
+
+  return {
+        addProperty:addProperty,
+        getProperties:getProperties,
+        getTarget:getTarget,
+        setTarget:setTarget
+  }
+}
 ```
 We've added the private instance variable itemProperties and two new methods, the helper method addProperty and the
 getProperties method. Take note that the addProperty method checks to verify that the property reference
@@ -126,24 +126,24 @@ with Collections. For the moment let us disregard how these data resources are a
 a very simple implementation of the Resource pattern.
 
 ```javascript
-  // Public constructor function
-  var Resource = function () {
+// Public constructor function
+var Resource = function () {
 
-    //if not called with new
-    if (!(this instanceof Resource)) {
-      return new Resource();
-    }
+  //if not called with new
+  if (!(this instanceof Resource)) {
+    return new Resource();
+  }
 
-    var contents = [];
+  var contents = [];
 
-    this.getContents = function () {
-      return [];
-    };
-
-    this.setContents = function (_contents) {
-      this.contents = _contents;
-    }
+  this.getContents = function () {
+    return [];
   };
+
+  this.setContents = function (_contents) {
+    this.contents = _contents;
+  }
+};
 ```
 
 ### A Simple Example - Using Adapters, Properties, and Resources
