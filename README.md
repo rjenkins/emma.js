@@ -363,90 +363,62 @@ Here's our abstract widget function. Our widget takes a property as a constructo
 template.
 
 ```javascript
-  // Widgets and the like
+// Widgets and the like
+var Widget = function (adapter, container, template) {
 
-  var Widget = function (_adapter) {
-
-      if (_adapter.constructor != Adapter) {
-        throw "adapter is not a Adapter object"
-      }
-
-      var adapter = _adapter;
-      var template = "";
-
-      this.getAdapter = function () {
-        return adapter;
-      }
-
-      this.getTemplate = function () {
-        return template;
-      }
-
-      this.setTemplate = function (_template) {
-        template = _template;
-      }
-    };
-
-
-   Widget.prototype.render = function () {
-     //No-Op
-   }
+  this.adapter = adapter;
+  this.container = container;
+  this.template = template;
+}
 ```
 
 ### Creating our first widget, a resuable Form.
 
-Now that we've created an abstract Widget type, let's create our Form widget
-and a constructor for our Form widget that uses the Widget function as it's prototype.
+Now that we've created an abstract Widget type, let's create our Form widget.
 
 ```javascript
-var _Form = function (adapter, container) {
-    Form.prototype = new Widget(adapter)
-    return new Form(adapter, container);
-  }
+// Have form inherit from a new Widget object
+var _Form = function (adapter, container, template) {
 
-  var Form = function (adapter, container) {
-    this.setTemplate($(JST['form']()));
-
-    this.render = function () {
-
-      var self = this;
-      var content = this.getTemplate();
-      $(content).empty();
-      $(content).append($(JST['formLegend']()));
-
-      this.getAdapter().getProperties().forEach(function (property) {
-        new Emma.TextInput(property).render(content);
-      });
-
-      $(content).append($(JST['formActions']()));
-
-      $(content).submit(function () {
-        var adapter = self.getAdapter();
-        var target = adapter.getTarget();
-        for (var k in target) {
-          console.log(k + " " + target[k]);
-        }
-        return false;
-      });
-
-      if (container !== undefined) {
-        $(container).append(content)
-      }
-
-      return content;
-    }
-
+  // Create a new prototype function for our form
+  function Form() {
     this.render();
   }
 
-  Emma.Widget = Widget;
-  Emma.Form = _Form;
+  Form.prototype = new Widget(adapter, container, $(JST['form']()));
+  Form.prototype.constructor = Widget;
+  Form.prototype.render = function () {
 
+    var content = this.template;
+    $(content).empty();
+    $(content).append($(JST['formLegend']()));
+
+    this.adapter.getProperties().forEach(function (property) {
+      property.getCellEditor().render(content);
+    });
+
+    $(content).append($(JST['formActions']()));
+
+    $(content).unbind();
+    $(content).submit(function () {
+      var target = adapter.getTarget();
+      for (var k in target) {
+        console.log(k + " " + target[k]);
+      }
+      return false;
+    });
+
+    if (this.container !== undefined) {
+      $(this.container).append(content);
+    }
+  }
+
+  return new Form();
+}
 ```
 
-Our Form widget will take an adapter and a container as constructor arguments
-and will hold a reference to the form template. Our form will also have a single function called render.
-When Form is called it will call this.render().
+Our Form widget will take an adapter, a container and an optional template as constructor arguments.
+Our form will also have a single function called render. When a Form is create it will call this.render().
 
 ### Rendering our Form.
 
@@ -455,19 +427,16 @@ multiple widgets, so it's good to have an understanding of the basic rendering f
 
 #### Initial Form Rendering
 
-1. First, we save a reference of this to self.
-2. Then we retrieve our template, notice it was set when our form was created and a form element generated from our
-call
-to - this.setTemplate($(JST['form']()));
-3. Finally empty out its current contents and append our Form legened.
+1. First we retrieve our template.
+2. Empty out any existing contents.
+2. Then we append our legend to our form.
 
 ```javascript
 this.render = function () {
 
-      var self = this;
-      var content = this.getTemplate();
-      $(content).empty();
-      $(content).append($(JST['formLegend']()));
+  var content = this.template;
+  $(content).empty();
+  $(content).append($(JST['formLegend']()));
 ```
 
 #### Adding our Input Elements and Actions
@@ -481,9 +450,9 @@ and pass it a reference to the property, then call render on the text input pass
 2. Finally append the formActions template to our Form content.
 
 ```javascript
-this.getAdapter().getProperties().forEach(function (property) {
-  new Emma.TextInput(property).render(content);
-});
+  this.adapter.getProperties().forEach(function (property) {
+    new Emma.TextInput(property).render(content);
+  });
 
 $(content).append($(JST['formActions']()));
 ```

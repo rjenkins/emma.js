@@ -226,16 +226,11 @@
   };
 
   // Widgets and the like
-  var Widget = function (adapterFactory, container, input, template) {
+  var Widget = function (adapter, container, template) {
 
-//    if (adapterFactory.constructor != AdapterFactory) {
-//      throw "adapterFactory is not a AdapterFactory object"
-//    }
-
-    this.adapterFactory = adapterFactory;
-    this.template = template;
+    this.adapter = adapter;
     this.container = container;
-    this.input = input;
+    this.template = template;
   }
 
   Widget.prototype.render = function () {
@@ -243,36 +238,30 @@
   }
 
   // Have form inherit from a new Widget object
-  var _Form = function (adapterFactory, container, input, template) {
+  var _Form = function (adapter, container, template) {
 
     // Create a new prototype function for our form
     function Form() {
-      if (this.input !== undefined) {
-        this.render(this.input);
-      }
+      this.render();
     }
 
-    Form.prototype = new Widget(adapterFactory, container, input, $(JST['form']()));
+    Form.prototype = new Widget(adapter, container, template || $(JST['form']()));
     Form.prototype.constructor = Widget;
-    Form.prototype.render = function (input) {
-
-      var input = input || this.input;
+    Form.prototype.render = function () {
 
       var content = this.template;
       $(content).empty();
       $(content).append($(JST['formLegend']()));
 
-      //var adapter = this.adapterFactory.adapt(input);
-
-      this.adapterFactory.getProperties().forEach(function (property) {
-        property.getCellEditor().render(content);
+      this.adapter.getProperties().forEach(function (property) {
+        new Emma.TextInput(property).render(content);
       });
 
       $(content).append($(JST['formActions']()));
 
       $(content).unbind();
       $(content).submit(function () {
-        var target = adapterFactory.getTarget();
+        var target = adapter.getTarget();
         for (var k in target) {
           console.log(k + " " + target[k]);
         }
@@ -312,7 +301,7 @@
     function TextInput() {
     }
 
-    TextInput.prototype = new CellEditor(property, template);
+    TextInput.prototype = new CellEditor(property, template || JST['inputText']);
     TextInput.prototype.constructor = CellEditor;
     TextInput.prototype.render = function (parent) {
       var self = this;
@@ -443,6 +432,4 @@
   Emma.CheckBoxInput = _CheckBoxInput;
   Emma.Select = _Select;
 
-}
-  )
-  ();
+})();
