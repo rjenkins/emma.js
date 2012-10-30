@@ -213,8 +213,6 @@
         return [];
       }
     }
-
-
   };
 
   var AdapterFactory = function () {
@@ -274,6 +272,51 @@
     this.setTemplate = function (_template) {
       template = _template;
     }
+  }
+
+  // Have form inherit from a new Widget object
+  var _Form = function (adapterFactory, container, input, template) {
+
+    // Create a new prototype function for our form
+    function Form() {
+      if (this.input !== undefined) {
+        this.render(this.input);
+      }
+    }
+
+    Form.prototype = new Widget(adapterFactory, container, input, $(JST['form']()));
+    Form.prototype.constructor = Widget;
+    Form.prototype.render = function (input) {
+
+      var input = input || this.input;
+
+      var content = this.template;
+      $(content).empty();
+      $(content).append($(JST['formLegend']()));
+
+      var adapter = this.adapterFactory.adapt(input);
+
+      adapter.getProperties().forEach(function (property) {
+        property.getCellEditor().render(content);
+      });
+
+      $(content).append($(JST['formActions']()));
+
+      $(content).unbind();
+      $(content).submit(function () {
+        var target = adapter.getTarget();
+        for (var k in target) {
+          console.log(k + " " + target[k]);
+        }
+        return false;
+      });
+
+      if (this.container !== undefined) {
+        $(this.container).append(content);
+      }
+    }
+
+    return new Form();
   }
 
   CellEditor.prototype.render = function () {
@@ -404,43 +447,9 @@
     return new TextArea();
   }
 
-  var Form = function () {
-
-    this.render = function () {
-      var content = this.template;
-      $(content).empty();
-      $(content).append($(JST['formLegend']()));
-
-      var adapter = this.adapterFactory.adapt(this.input);
-
-      adapter.getProperties().forEach(function (property) {
-        property.getCellEditor().render(content);
-      });
-
-      $(content).append($(JST['formActions']()));
-
-      $(content).unbind();
-      $(content).submit(function () {
-        var target = adapter.getTarget();
-        for (var k in target) {
-          console.log(k + " " + target[k]);
-        }
-        return false;
-      });
-
-      if (this.container !== undefined) {
-        $(this.container).append(content);
-      }
-
-    }
-
-    if (this.input !== undefined) {
-      this.render();
-    }
-  }
 
   Emma.AdapterFactory = AdapterFactory;
-
+  Emma.Form = _Form;
   Emma.Widget = Widget;
   Emma.CellEditor = CellEditor;
   Emma.TextInput = _TextInput;
@@ -448,14 +457,6 @@
   Emma.RadioInput = _RadioInput;
   Emma.CheckBoxInput = _CheckBoxInput;
   Emma.Select = _Select;
-
-  // Have form inherit from a new Widget object
-  Emma.Form = function (adapterFactory, container, input, template) {
-    Form.prototype = new Widget(adapterFactory, container, input, $(JST['form']()));
-    var f = new Form();
-    Form.prototype.constructor = Form;
-    return f;
-  };
 
 }
   )
