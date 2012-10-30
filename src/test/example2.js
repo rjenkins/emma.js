@@ -6,7 +6,7 @@
  * To change this template use File | Settings | File Templates.
  */
 
-// example1.js
+// example2.js
 
 window = {};
 

@@ -148,7 +148,10 @@ var Resource = function () {
 
 ### A Simple Example - Using Adapters, Properties, and Resources
 
-Consider the following example, you'll need to install node.js and the underscore module (npm install underscore). In our example we'll create a new Resource called userResource and set it's contents to a list of user objects, then we create a new Adapter called userAdapter and add a Property to it from the email attribute of users. Finally we get the contents from our userResource, adapt the objects and print out the value of it's properties.
+Consider the following example, you'll need to install node.js and the underscore module (npm install underscore).
+In our example we'll create a new Resource called userResource and set it's contents to a list of user objects,
+then we create a new Adapter called userAdapter and add a Property to it from the email attribute of users.
+Finally we get the contents from our userResource, adapt the objects and print out the value of it's properties.
 
 ```javascript
 /**
@@ -184,8 +187,7 @@ with (window.Emma) {
 
   // Retrieve contents of our Resource, adapt user objects and print properties
   userResource.getContents().forEach(function (user) {
-    var userAdapter = new Adapter(user);
-    userAdapter.addProperty(new Property("email"));
+    var userAdapter = new Adapter(user).addProperty(new Property("email"));
     userAdapter.getProperties().forEach(function (property) {
       console.log(property.getValue());
     });
@@ -215,7 +217,7 @@ some new data types to our example and review the results.
  * To change this template use File | Settings | File Templates.
  */
 
-// example1.js
+// example2.js
 
 window = {};
 
@@ -266,7 +268,6 @@ with (window.Emma) {
   displayResources(computerResource, computerAdapter);
 
 }
-
 ```
 Now when we run node example2.js we get the following output
 

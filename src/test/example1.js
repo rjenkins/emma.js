@@ -31,8 +31,7 @@ with (window.Emma) {
 
   // Retrieve contents of our Resource, adapt user objects and print properties
   userResource.getContents().forEach(function (user) {
-    var userAdapter = new Adapter(user);
-    userAdapter.addProperty(new Property("email"));
+    var userAdapter = new Adapter(user).addProperty(new Property("email"));
     userAdapter.getProperties().forEach(function (property) {
       console.log(property.getValue());
     });
