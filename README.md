@@ -626,6 +626,8 @@ We'll need to expose some of these functions on our Emma object so let's do that
 Emma's still small enough to paste the contents of the library in here pretty easily,
 so let's do that now for review before we start to use our Form widget.
 
+**src/main/test/example4/emma_ex3.js**
+
 ```javascript
 /**
  * Created by JetBrains WebStorm.
@@ -990,7 +992,7 @@ a wide variety of form configurations.
 
 ## Implementing Cell Editors
 
-Of course forms are never quite this simple so we'll need to implement a few more cell editors to
+Of course forms are never quite this simple so we'll need to implement a few more Cell Editors to
 support the various input types used in forms. Additionally we'll need to update our Property object to support
 these different types of cell editors and we'll also need to modify the way the form adds Cell Editors, right now
 it's just making an InputText widget for every property.
@@ -1022,97 +1024,128 @@ Now let's implement a set of Cell Editors for the html types.
 4. TextArea
 
 ```javascript
- var RadioInput = function () {
+ var _TextInput = function (property, template) {
 
-    this.render = function (parent) {
+    function TextInput() {
+    }
+
+    TextInput.prototype = new CellEditor(property, template);
+    TextInput.prototype.constructor = CellEditor;
+    TextInput.prototype.render = function (parent) {
       var self = this;
+      var inputData = this.template(this.property);
+      var input = $(inputData);
+      $(parent).append(input);
 
-      var inputData = _.template(JST['inputRadio'], this.getProperty());
+      $(input).find('input[type=text]').keyup(function () {
+        self.property.setValue($(this).val());
+      });
+
+      return input;
+    }
+
+    return new TextInput();
+  }
+
+  var _RadioInput = function (property, template) {
+
+    function RadioInput() {
+    }
+
+    RadioInput.prototype = new CellEditor(property, template);
+    RadioInput.prototype.constructor = CellEditor;
+    RadioInput.prototype.render = function (parent) {
+
+      var self = this;
+      var inputData = _.template(this.template, this.property);
       var input = $(inputData);
       $(parent).append(input);
 
       $(input).find('input[type=radio]').change(function () {
         if ($(this).attr("checked") === "checked") {
-          self.getProperty().setValue($(this).val());
+          self.property.setValue($(this).val());
         }
       });
 
       return input;
     }
-  }
 
-  var _RadioInput = function (property) {
-    RadioInput.prototype = new CellEditor(property);
     return new RadioInput();
   }
 
-  var CheckBoxInput = function () {
-    this.setTemplate(JST['checkBox']);
+  var _CheckBoxInput = function (property, template) {
 
-    this.render = function (parent) {
+    function CheckBoxInput() {
+    }
+
+    CheckBoxInput.prototype = new CellEditor(property, template);
+    CheckBoxInput.prototype.constructor = CellEditor;
+    CheckBoxInput.prototype.render = function (parent) {
       var self = this;
-      var inputData = this.getTemplate()(this.getProperty());
+      var inputData = this.template(this.property);
       var input = $(inputData);
       $(parent).append(input);
 
       $(input).find('input[type=checkbox]').click(function () {
         if ($(this).attr("checked") === "checked") {
-          self.getProperty().setValue(true);
+          self.property.setValue(true);
         } else {
-          self.getProperty().setValue(false);
+          self.property.setValue(false);
         }
       });
       return input;
     }
-  }
 
-  var _CheckBoxInput = function (property) {
-    CheckBoxInput.prototype = new CellEditor(property);
     return new CheckBoxInput();
   }
 
-  var Select = function () {
 
-    this.render = function (parent) {
+  var _Select = function (property, template) {
+
+    function Select() {
+    }
+
+    Select.prototype = new CellEditor(property, template);
+    Select.prototype.constructor = CellEditor;
+    Select.prototype.render = function (parent) {
+
       var self = this;
 
       // For Selects we have to do at runtime and can't precompile
-      var inputData = _.template(JST['select'], this.getProperty());
+      var inputData = _.template(template, this.property);
       var input = $(inputData);
       $(parent).append(input);
 
       $(input).find('select').change(function () {
-        self.getProperty().setValue($(this).val());
+        self.property.setValue($(this).val());
       });
       return input;
     }
-  }
 
-  var _Select = function (property) {
-    Select.prototype = new CellEditor(property);
     return new Select();
   }
 
-  var TextArea = function () {
-    this.setTemplate(JST['textArea']);
 
-    this.render = function (parent) {
+  var _TextArea = function (property, template) {
+    function TextArea() {
+    }
+
+    TextArea.prototype = new CellEditor(property, template);
+    TextArea.prototype.constructor = CellEditor;
+    TextArea.prototype.render = function (parent) {
 
       var self = this;
-      var inputData = this.getTemplate()(this.getProperty());
+      var inputData = this.template(this.property);
       var input = $(inputData);
       $(parent).append(input);
 
       $(input).find('textarea').keyup(function () {
-        self.getProperty().setValue($(this).val());
+        self.property.setValue($(this).val());
       });
 
       return input;
     }
-  }
 
-  var _TextArea = function (property) {
-    TextArea.prototype = new CellEditor(property);
     return new TextArea();
   }
 ```
@@ -1192,46 +1225,46 @@ our Property object and implement a getCellEditor method.
       return new Property();
     }
 
-    var id = _id,
-      adapter,
-      displayName,
-      cellEditorType = CellEditor.TEXT_INPUT,
-      options = {};
-
+    this.adapter;
+    this.id = _id;
+    this.displayName;
+    this.visibleInForm = true;
+    this.visibleInTable = true;
+    this.cellEditorType = CellEditor.TEXT_INPUT;
+    this.options = {};
     ...
 
-    this.setCellEditorType = function (_cellEditorType) {
-          cellEditorType = _cellEditorType;
-          return this;
-    }
-
-    this.getCellEditorType = function () {
-      return cellEditorType;
-    }
-
-    this.getCellEditor = function () {
-      if (cellEditorType === CellEditor.CHECK_BOX) {
-        return new Emma.CheckBoxInput(this)
-      } else if (cellEditorType === CellEditor.SELECT || cellEditorType === CellEditor.SELECT_MULTIPLE) {
-        return new Emma.Select(this);
-      } else if (cellEditorType === CellEditor.RADIO_INPUT) {
-        return new Emma.RadioInput(this);
-      } else if (cellEditorType === CellEditor.TEXT_AREA) {
-        return new Emma.TextArea(this);
-      } else {
-        return new Emma.TextInput(this);
-      }
-    }
-
-    this.setOptions = function (_options) {
-      options = _options;
+   Property.prototype.setCellEditorType = function (cellEditorType) {
+      this.cellEditorType = cellEditorType;
       return this;
     }
 
-    this.getOptions = function () {
-      return options;
+    Property.prototype.getCellEditorType = function () {
+      return this.cellEditorType;
     }
 
+    Property.prototype.getCellEditor = function () {
+      if (this.cellEditorType === CellEditor.CHECK_BOX) {
+        return new Emma.CheckBoxInput(this, JST['checkBox']);
+      } else if (this.cellEditorType === CellEditor.SELECT || this.cellEditorType === CellEditor.SELECT_MULTIPLE) {
+        return new Emma.Select(this, JST['select']);
+      } else if (this.cellEditorType === CellEditor.RADIO_INPUT) {
+        return new Emma.RadioInput(this, JST['inputRadio']);
+      } else if (this.cellEditorType === CellEditor.TEXT_AREA) {
+        return new Emma.TextArea(this, JST['textArea']);
+      } else {
+        return new Emma.TextInput(this, JST['inputText']);
+      }
+    }
+
+    Property.prototype.setOptions = function (_options) {
+      this.options = _options;
+      return this;
+    }
+
+    Property.prototype.getOptions = function () {
+      return this.options;
+    }
     ...
 ```
 
@@ -1239,22 +1272,21 @@ And let's define some constants for our CellEditor types.
 
 ```javascript
 
-CellEditor.prototype.render = function () {
-    //No-Op
-}
-
 CellEditor.TEXT_INPUT = "TEXT_INPUT";
 CellEditor.CHECK_BOX = "CHECK_BOX";
 CellEditor.SELECT = "SELECT";
 CellEditor.SELECT_MULTIPLE = "SELECT_MULTIPLE";
 CellEditor.RADIO_INPUT = "RADIO_INPUT";
 CellEditor.TEXT_AREA = "TEXT_AREA";
+
 ```
 
 ### Example: A more advanced Form
 
 Now we can create a much more realistic form, let's go back and modify our previous example adding attributes to our
 user object and modify our Properties to use these new Cell Editors.
+
+**src/test/example4/example4.html**
 
 ```javascript
 <!DOCTYPE html>
@@ -1267,6 +1299,7 @@ user object and modify our Properties to use these new Cell Editors.
   <style>
     body {
       padding-top: 100px;
+      padding-bottom: 20px;
     }
 
     #userFormWrapper form {
@@ -1301,11 +1334,11 @@ user object and modify our Properties to use these new Cell Editors.
 
   </style>
 
-  <script type="text/javascript" src="../lib/jquery.min.js"></script>
-  <script src="../lib/bootstrap.min.js"></script>
-  <script type="text/javascript" src="../main/emma.js"></script>
-  <script type="text/javascript" src="../lib/underscore.js"></script>
-  <script src="../main/widgetTemplates.js"></script>
+  <script type="text/javascript" src="../../lib/jquery.min.js"></script>
+  <script src="../../lib/bootstrap.min.js"></script>
+  <script type="text/javascript" src="emma_ex4.js"></script>
+  <script type="text/javascript" src="../../lib/underscore.js"></script>
+  <script src="../../main/widgetTemplates.js"></script>
   <script type="text/javascript">
 
 
