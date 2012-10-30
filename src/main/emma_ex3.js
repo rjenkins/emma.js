@@ -59,7 +59,7 @@
     }
   }
 
-  // Public constructor function
+// Public constructor function
   var Property = Emma.Property = function (_id) {
 
     // if not called with new
@@ -89,7 +89,8 @@
   }
 
   Property.prototype.getValue = function () {
-    return this.adapter.getTarget()[this.id];
+    var t = this.adapter.getTarget();
+    return t[this.id]
   }
 
   Property.prototype.setValue = function (value) {
@@ -227,9 +228,9 @@
   // Widgets and the like
   var Widget = function (adapterFactory, container, input, template) {
 
-    if (adapterFactory.constructor != AdapterFactory) {
-      throw "adapterFactory is not a AdapterFactory object"
-    }
+//    if (adapterFactory.constructor != AdapterFactory) {
+//      throw "adapterFactory is not a AdapterFactory object"
+//    }
 
     this.adapterFactory = adapterFactory;
     this.template = template;
@@ -261,9 +262,9 @@
       $(content).empty();
       $(content).append($(JST['formLegend']()));
 
-      var adapter = this.adapterFactory.adapt(input);
+      //var adapter = this.adapterFactory.adapt(input);
 
-      adapter.getProperties().forEach(function (property) {
+      this.adapterFactory.getProperties().forEach(function (property) {
         property.getCellEditor().render(content);
       });
 
@@ -271,7 +272,7 @@
 
       $(content).unbind();
       $(content).submit(function () {
-        var target = adapter.getTarget();
+        var target = adapterFactory.getTarget();
         for (var k in target) {
           console.log(k + " " + target[k]);
         }

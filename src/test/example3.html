@@ -34,7 +34,7 @@
 
   <script type="text/javascript" src="../lib/jquery.min.js"></script>
   <script src="../lib/bootstrap.min.js"></script>
-  <script type="text/javascript" src="../main/emma.js"></script>
+  <script type="text/javascript" src="../main/emma_ex3.js"></script>
   <script type="text/javascript" src="../lib/underscore.js"></script>
   <script src="../main/widgetTemplates.js"></script>
   <script type="text/javascript">
@@ -48,17 +48,15 @@
           username:"rjenkins", email:"rjenkins@aceevo.com" };
 
         // Create an adapter for user data
-        var userAdapter = new Adapter()
+        var userAdapter = new Adapter(user)
                 .addProperty(new Property("first").setDisplayName("First"))
                 .addProperty(new Property("last").setDisplayName("Last"))
                 .addProperty(new Property("username").setDisplayName("Username"))
                 .addProperty(new Property("email").setDisplayName("Email"));
 
-        // Set the target on out adapter
-        userAdapter.target = user;
 
         // Instantiate our form
-        new Form(userAdapter, $("#userFormWrapper"));
+        new Form(userAdapter, $("#userFormWrapper"), user, undefined);
       }
     });
   </script>

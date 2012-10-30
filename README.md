@@ -9,22 +9,25 @@ A fundamental problem when building any user interface is getting data into the 
 ### The Adapter Pattern
 The purpose of the adapter is to provide an abstract interface for accessing our data object.
 ```javascript
-  // Public constructor function
-  var Adapter = function () {
+    // Public constructor function
+    var Adapter = Emma.Adapter = function (_target) {
 
-    //if not called with new
-    if (!(this instanceof Adapter)) {
-      return new Adapter();
+      var target = _target;
+
+      var getTarget = function () {
+        return target;
+      }
+
+      var setTarget = function (_target) {
+        target = _target;
+        return this;
+      }
+
+      return {
+        getTarget:getTarget,
+        setTarget:setTarget
+      }
     }
-
-    var target;
-
-    this.setTarget = function (_target) {
-      target = _target;
-    };
-    this.getTarget = function () {
-      return target;
-    };
 ```
 
 So reviewing this code we have a constructor function for our adapter, it checks to make sure it was called with the new operator and if not it calls itself again with new. We have a private variable target and we have getter and setter methods for it. This is sometimes referred to as the instance privacy pattern and is not generally used in JavaScript for various reasons, without delving to deeply into that discussion, I'll just say that I'm using this pattern here because I consider this to be infrastructure code that will be used all over the place by application code and I want to keep a very strict API.
@@ -37,63 +40,53 @@ Property objects allow us to organize metadata associated with viewing the prope
 
 ```javascript
   // Public constructor function
-  var Property = function (_id) {
+  var Property = Emma.Property = function (_id) {
 
-    //if not called with new
-    if (!(this instanceof Property)) {
-      return new Property();
+      // if not called with new
+      if (!(this instanceof Property)) {
+        return new Property(_id);
+      }
+
+      this.adapter;
+      this.id = _id;
     }
 
-    var id = _id,
-      adapter;
-
-    this.getId = function () {
-      return id;
+    // Setters provided for fluent pattern and
+    // Getters just provided for consistency with Setters
+    // but can be accessed directly as well.
+    Property.prototype.getId = function () {
+      return this.id;
     };
 
-    this.setAdapter = function (_adapter) {
-      adapter = _adapter;
+    Property.prototype.setAdapter = function (_adapter) {
+      this.adapter = _adapter;
       return this;
     }
 
-    this.getValue = function () {
-      return adapter.getTarget()[id];
+    Property.prototype.getValue = function () {
+      return this.adapter.getTarget()[this.id];
     }
 
-    this.setValue = function(value) {
-      adapter.getTarget()[id] = value;
-      return this;
+    Property.prototype.setValue = function (value) {
+      this.adapter.getTarget()[this.id] = value;
     }
-  }
 ```
 
 ### Adding Properties to the Adapter
 Now we can go back and modify our adapter object to contain a map of Property objects.
 ```javascript
   // Public constructor function
-  var Adapter = function () {
+ var Adapter = Emma.Adapter = function (_target) {
 
-    //if not called with new
-    if (!(this instanceof Adapter)) {
-      return new Adapter();
-    }
+    var target = _target;
 
-    var target,
-      itemProperties = [];
+    // Make itemProperties private as we want to ensure people can only
+    // add legitimate Property objects to list collection
+    var itemProperties = [];
 
-    this.setTarget = function (_target) {
-      target = _target;
-    };
-    this.getTarget = function () {
-      return target;
-    };
+    var addProperty = function (property) {
 
-    this.addProperty = function (id, property) {
-      if (id === null || id === undefined) {
-        throw "id cannot be null || undefined";
-      }
-
-      if (property.constructor != Property) {
+      if (property.constructor != Property || property === undefined) {
         throw "property is not a Property object"
       }
 
@@ -102,8 +95,17 @@ Now we can go back and modify our adapter object to contain a map of Property ob
       return this;
     };
 
-    this.getProperties = function () {
+    var getProperties = function () {
       return itemProperties;
+    }
+
+    ...
+
+    return {
+          addProperty:addProperty,
+          getProperties:getProperties,
+          getTarget:getTarget,
+          setTarget:setTarget
     }
   }
 ```
@@ -169,11 +171,11 @@ with (window.Emma) {
   ]);
 
   // Create an adapter for our users and add a property for the email attribute
-  var userAdapter = new Adapter().addProperty("email", new Property("email"));
 
   // Retrieve contents of our Resource, adapt user objects and print properties
   userResource.getContents().forEach(function (user) {
-    userAdapter.setTarget(user);
+    var userAdapter = new Adapter(user);
+    userAdapter.addProperty(new Property("email"));
     userAdapter.getProperties().forEach(function (property) {
       console.log(property.getValue());
     });
