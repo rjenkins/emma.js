@@ -359,8 +359,7 @@ div that has a submit and cancel button.
 
 ### Abstract Widget Pattern
 
-Here's our abstract widget function. Our widget takes a property as a constructor arg and also holds a reference to a
-template.
+Here's our abstract widget function. Our widget takes an adapter, container, and template as a constructor args.
 
 ```javascript
 // Widgets and the like
@@ -608,13 +607,28 @@ value
       }
 ```
 
+### Exposing our API
+
+We'll need to expose some of these functions on our Emma object so let's do that now.
+
+```javascript
+  ...
+
+  Emma.Adapter = Adapter;
+  Emma.CellEditor = CellEditor;
+  Emma.Form = _Form;
+  Emma.TextInput = _TextInput;
+  Emma.Widget = Widget;
+```
+
 ### Using our Form widget
 
 So let's look at an example of using our first widget. We're going to start with a piece of data first (of course),
 this will be a user object, we'll create a new adapter for our user and add some properties and finally we'll
 instantiate our form widget and pass it our User Adapter.
 
-** src/test/example3/example3.html **
+**src/test/example3/example3.html**
+
 ```
 <!DOCTYPE html>
 <html>
