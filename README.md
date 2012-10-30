@@ -30,13 +30,19 @@ The purpose of the adapter is to provide an abstract interface for accessing our
     }
 ```
 
-So reviewing this code we have a constructor function for our adapter, it checks to make sure it was called with the new operator and if not it calls itself again with new. We have a private variable target and we have getter and setter methods for it. This is sometimes referred to as the instance privacy pattern and is not generally used in JavaScript for various reasons, without delving to deeply into that discussion, I'll just say that I'm using this pattern here because I consider this to be infrastructure code that will be used all over the place by application code and I want to keep a very strict API.
+So reviewing this code we module pattern function for our adapter and it takes an argument called _target. We save the
+variable _target off into a private variable called target and we create getter and setter methods for it and expose
+on the returned API.
 
-Well there's not much to our adapter at the moment, so let's make it a bit more useful by introducing our next pattern Properties.
+Well there's not much to our adapter at the moment, so let's make it a bit more useful by introducing our next
+pattern Properties.
 
 ### The Property Pattern
 
-Property objects allow us to organize metadata associated with viewing the property of an object. Properties are retained in an adapter and the view will then be able to use this metadata to determine how to render an object in a view. Additionally our Property object retains a reference to it's parent adapter and has the getValue() and setValue() functions.
+Property objects allow us to organize metadata associated with viewing the property of an object.
+Properties are retained in an adapter and the view will then be able to use this metadata to determine how to render
+an object in a view. Additionally our Property object retains a reference to it's parent adapter and
+has the getValue() and setValue() functions.
 
 ```javascript
   // Public constructor function
@@ -73,7 +79,7 @@ Property objects allow us to organize metadata associated with viewing the prope
 ```
 
 ### Adding Properties to the Adapter
-Now we can go back and modify our adapter object to contain a map of Property objects.
+Now we can go back and modify our adapter object to contain a collection of Property objects.
 ```javascript
   // Public constructor function
  var Adapter = Emma.Adapter = function (_target) {
@@ -109,11 +115,15 @@ Now we can go back and modify our adapter object to contain a map of Property ob
     }
   }
 ```
-We've added the private instance variable itemProperties and two new methods, the helper method addProperty and the getProperties method. Take note that the addProperty method checks to verify that the property reference passed to the function is indeed a Property object, set's itself as the parent adapter and returns itself.
+We've added the private instance variable itemProperties and two new methods, the helper method addProperty and the
+getProperties method. Take note that the addProperty method checks to verify that the property reference
+passed to the function is indeed a Property object, set's itself as the parent adapter and returns itself.
 
 ### The Resource Pattern
 
-A Resource is a collection of data objects of a given type. If you're familiar with backbone.js then you're familiar with Collections. For the moment let us disregard how these data resources are acquired from the server and introduce a very simple implementation of the Resource pattern. 
+A Resource is a collection of data objects of a given type. If you're familiar with backbone.js then you're familiar
+with Collections. For the moment let us disregard how these data resources are acquired from the server and introduce
+a very simple implementation of the Resource pattern.
 
 ```javascript
   // Public constructor function
