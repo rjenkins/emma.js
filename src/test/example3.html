@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/css/bootstrap-combined.min.css"
+        rel="stylesheet">
+
+  <style>
+    body {
+      padding-top: 100px;
+    }
+
+    #userFormWrapper form {
+      margin: 0 auto;
+    }
+
+    .container {
+      background-color: #F7F7F9;
+      border-radius: 5px;
+      padding: 0 0 20px 0;
+      border: 1px solid #E1E1E8;
+    }
+
+    .form-actions {
+      background: none;
+      padding-left: 200px !important;
+    }
+
+    .form-actions .btn {
+      margin-right: 4px;
+    }
+
+  </style>
+
+  <script type="text/javascript" src="../lib/jquery.min.js"></script>
+  <script src="../lib/bootstrap.min.js"></script>
+  <script type="text/javascript" src="../main/emma.js"></script>
+  <script type="text/javascript" src="../lib/underscore.js"></script>
+  <script src="../main/widgetTemplates.js"></script>
+  <script type="text/javascript">
+
+
+    $(function () {
+      with (Emma) {
+
+        // Mock up some data
+        var user = { first:"Ray", last:"Jenkins",
+          username:"rjenkins", email:"rjenkins@aceevo.com" };
+
+        // Create an adapter for user data
+        var userAdapter = new Adapter()
+                .addProperty(new Property("first").setDisplayName("First"))
+                .addProperty(new Property("last").setDisplayName("Last"))
+                .addProperty(new Property("username").setDisplayName("Username"))
+                .addProperty(new Property("email").setDisplayName("Email"));
+
+        // Set the target on out adapter
+        userAdapter.target = user;
+
+        // Instantiate our form
+        new Form(userAdapter, $("#userFormWrapper"));
+      }
+    });
+  </script>
+</head>
+<body>
+<div class="container">
+  <div class="registrationWrapper">
+    <div class="row">
+      <div class="offset3">
+        <h3>Herp a Derp Web Application</h3>
+
+        <p class="lead">
+          Edit you some data here, isn't this so exciting!
+        </p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="offset3 span8" id="userFormWrapper">
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
