@@ -474,118 +474,112 @@ return content;
 
 ### Abstract Cell Editor Pattern
 
-Like widgets Cell Editors are reusable UI components, so technically that makes them widgets
-as well but their specifically designed to take and modify input from users.
-Let's create an abstract function for our Cell Editors, we could have them extend Widget, but there's
-not that much value in that, so let's just look at our Cell Editor abstract class and constructors.
+Like Widgets, Cell Editors are reusable UI components, so technically that makes them widgets
+as well but their specifically designed to take and modify input from html elements.
+Let's create an constuctor function for our Cell Editors, we could have them extend Widget, but there's
+not that much value in that so we're just going to create a new constructor.
 
-Like a widget a Cell editor has a template and a render function but it takes a reference
-to a property object rather than an adapter.
-
+A Cell Editor takes a property and an template as constructor functions. Like Widget it also has a render function but
+throws an exception if it isn't overriden.
 
 ```javascript
 
-var CellEditor = function (_property) {
+  var CellEditor = function (property, template) {
 
-    var property = _property;
-    var template = "";
+    if (!(property instanceof Property))
+      throw "property is not an instance of Property object"
 
-    if (_property.constructor != Property) {
-      throw "property is not a Property object"
-    }
-
-    this.getProperty = function () {
-      return property;
-    }
-
-    this.getTemplate = function () {
-      return template;
-    }
-
-    this.setTemplate = function (_template) {
-      template = _template;
-    }
+    this.property = property;
+    this.template = template;
   }
 
   CellEditor.prototype.render = function () {
     //No-Op
   }
-
 ```
 ### Modifying Property
 
 We need to add some attributes to our property object to make it more useful for use
-in widgets, we'll setart by adding a displayName field, and a boolean for visibleInForm.
+in widgets, we'll start by adding a displayName field.
 
 ```javascript
 // Public constructor function
-  var Property = function (_id) {
+  var Property = Emma.Property = function (_id) {
 
-    //if not called with new
+    // if not called with new
     if (!(this instanceof Property)) {
-      return new Property();
+      return new Property(_id);
     }
 
-    var id = _id,
-      adapter,
-      displayName,
-      visibleInForm = true,
-
-      ...
-
-    this.setDisplayName = function (_displayName) {
-      displayName = _displayName;
-      return this;
-    }
-
-    this.getDisplayName = function () {
-      return displayName;
-    }
-
-    this.setVisibileInForm = function (_visibleInForm) {
-      visibleInForm = _visibleInForm;
-      return this;
-    }
-
-    this.isVisibleInForm = function () {
-      return visibleInForm;
-    }
-
-    ...
-
+    this.adapter;
+    this.id = _id;
+    this.displayName;
   }
-```
 
+  // Setters provided for fluent pattern and
+  // Getters just provided for consistency with Setters
+  // but can be accessed directly as well.
+  Property.prototype.getId = function () {
+    return this.id;
+  };
+
+  Property.prototype.setAdapter = function (_adapter) {
+    this.adapter = _adapter;
+    return this;
+  }
+
+  Property.prototype.getValue = function () {
+    var t = this.adapter.getTarget();
+    return t[this.id]
+  }
+
+  Property.prototype.setValue = function (value) {
+    this.adapter.getTarget()[this.id] = value;
+  }
+
+  Property.prototype.setDisplayName = function (_displayName) {
+    this.displayName = _displayName;
+    return this;
+  }
+
+  Property.prototype.getDisplayName = function () {
+    return this.displayName;
+  }
+
+```
 
 ### Creating our TextInput Cell Editor
 
-The TextInput will use the CellEditor for it's prototype and it's setup and rendering
-is straight forward, we set our template and then in render we save a copy of this to self. Next
-we call get template and pass it our property (as attributes of our property are accessed in our template)
-and finally we append our input to the parent container element.
+The TextInput has a constructor which accepts a property and an optional template. We create a new constructor function
+called TextInput and set it's prototype to a new CellEditor, we then update it's prototype.constructor and override the
+render function for our TextInput.
+
+Render is straight forward, we save a copy of this to self. Next we call get template and pass it our property, as
+attributes of our property are accessed in our template and finally we append our input to the parent container
+element.
 
 ```javascript
 
-var TextInput = function () {
-    this.setTemplate(JST['inputText']);
+var _TextInput = function (property, template) {
 
-    this.render = function (parent) {
+    function TextInput() {
+    }
+
+    TextInput.prototype = new CellEditor(property, template || JST['inputText']);
+    TextInput.prototype.constructor = CellEditor;
+    TextInput.prototype.render = function (parent) {
       var self = this;
-      var inputData = this.getTemplate()(this.getProperty());
+      var inputData = this.template(this.property);
       var input = $(inputData);
       $(parent).append(input);
 
       $(input).find('input[type=text]').keyup(function () {
-        self.getProperty().setValue($(this).val());
+        self.property.setValue($(this).val());
       });
-
 
       return input;
     }
-  }
 
-  var _TextInput = function (property) {
-    TextInput.prototype = new CellEditor(property);
     return new TextInput();
   }
 ```
@@ -604,7 +598,7 @@ value
 ```javascript
 
       $(input).find('input[type=text]').keyup(function () {
-        self.getProperty().setValue($(this).val());
+        self.property.setValue($(this).val());
       });
 
       // From Property
@@ -620,6 +614,7 @@ So let's look at an example of using our first widget. We're going to start with
 this will be a user object, we'll create a new adapter for our user and add some properties and finally we'll
 instantiate our form widget and pass it our User Adapter.
 
+** src/test/example3/example3.html **
 ```
 <!DOCTYPE html>
 <html>
@@ -655,11 +650,11 @@ instantiate our form widget and pass it our User Adapter.
 
   </style>
 
-  <script type="text/javascript" src="../lib/jquery.min.js"></script>
-  <script src="../lib/bootstrap.min.js"></script>
-  <script type="text/javascript" src="../main/emma.js"></script>
-  <script type="text/javascript" src="../lib/underscore.js"></script>
-  <script src="../main/widgetTemplates.js"></script>
+  <script type="text/javascript" src="../../lib/jquery.min.js"></script>
+  <script src="../../lib/bootstrap.min.js"></script>
+  <script type="text/javascript" src="emma_ex3.js"></script>
+  <script type="text/javascript" src="../../lib/underscore.js"></script>
+  <script src="../../main/widgetTemplates.js"></script>
   <script type="text/javascript">
 
 
@@ -671,17 +666,16 @@ instantiate our form widget and pass it our User Adapter.
           username:"rjenkins", email:"rjenkins@aceevo.com" };
 
         // Create an adapter for user data
-        var userAdapter = new Adapter()
+        var userAdapter = new Adapter(user)
                 .addProperty(new Property("first").setDisplayName("First"))
                 .addProperty(new Property("last").setDisplayName("Last"))
                 .addProperty(new Property("username").setDisplayName("Username"))
                 .addProperty(new Property("email").setDisplayName("Email"));
 
-        // Set the target on out adapter
-        userAdapter.setTarget(user);
 
         // Instantiate our form
         new Form(userAdapter, $("#userFormWrapper"));
+
       }
     });
   </script>
