@@ -59,16 +59,6 @@
     }
   }
 
-//  Emma.extend = function (object, parent) {
-//    var F = function () {
-//    };
-//    F.prototype = new parent();
-//    for (var index in object)
-//      F.prototype[index] = object[index];
-//    return F;
-//  }
-
-
 // Public constructor function
   var Property = Emma.Property = function (_id) {
 
@@ -145,15 +135,15 @@
 
   Property.prototype.getCellEditor = function () {
     if (this.cellEditorType === CellEditor.CHECK_BOX) {
-      return new Emma.CheckBoxInput(this)
+      return new Emma.CheckBoxInput(this, JST['checkBox']);
     } else if (this.cellEditorType === CellEditor.SELECT || this.cellEditorType === CellEditor.SELECT_MULTIPLE) {
-      return new Emma.Select(this);
+      return new Emma.Select(this, JST['select']);
     } else if (this.cellEditorType === CellEditor.RADIO_INPUT) {
-      return new Emma.RadioInput(this);
+      return new Emma.RadioInput(this, JST['inputRadio']);
     } else if (this.cellEditorType === CellEditor.TEXT_AREA) {
-      return new Emma.TextArea(this);
+      return new Emma.TextArea(this, JST['textArea']);
     } else {
-      return new Emma.TextInput(this);
+      return new Emma.TextInput(this, JST['inputText']);
     }
   }
 
@@ -252,28 +242,6 @@
     throw "Function not supported without override"
   }
 
-  var CellEditor = function (_property) {
-
-    var property = _property;
-    var template = "";
-
-    if (_property.constructor != Property) {
-      throw "property is not a Property object"
-    }
-
-    this.getProperty = function () {
-      return property;
-    }
-
-    this.getTemplate = function () {
-      return template;
-    }
-
-    this.setTemplate = function (_template) {
-      template = _template;
-    }
-  }
-
   // Have form inherit from a new Widget object
   var _Form = function (adapterFactory, container, input, template) {
 
@@ -319,6 +287,15 @@
     return new Form();
   }
 
+  var CellEditor = function (property, template) {
+
+    if (!(property instanceof Property))
+      throw "property is not an instance of Property object"
+
+    this.property = property;
+    this.template = template;
+  }
+
   CellEditor.prototype.render = function () {
     //No-Op
   }
@@ -330,128 +307,136 @@
   CellEditor.RADIO_INPUT = "RADIO_INPUT";
   CellEditor.TEXT_AREA = "TEXT_AREA";
 
-  var TextInput = function () {
-    this.setTemplate(JST['inputText']);
+  var _TextInput = function (property, template) {
 
-    this.render = function (parent) {
+    function TextInput() {
+    }
+
+    TextInput.prototype = new CellEditor(property, template);
+    TextInput.prototype.constructor = CellEditor;
+    TextInput.prototype.render = function (parent) {
       var self = this;
-      var inputData = this.getTemplate()(this.getProperty());
+      var inputData = this.template(this.property);
       var input = $(inputData);
       $(parent).append(input);
 
       $(input).find('input[type=text]').keyup(function () {
-        self.getProperty().setValue($(this).val());
+        self.property.setValue($(this).val());
       });
-
 
       return input;
     }
-  }
 
-  var _TextInput = function (property) {
-    TextInput.prototype = new CellEditor(property);
     return new TextInput();
   }
 
-  var RadioInput = function () {
+  var _RadioInput = function (property, template) {
 
-    this.render = function (parent) {
+    function RadioInput() {
+    }
+
+    RadioInput.prototype = new CellEditor(property, template);
+    RadioInput.prototype.constructor = CellEditor;
+    RadioInput.prototype.render = function (parent) {
+
       var self = this;
-
-      var inputData = _.template(JST['inputRadio'], this.getProperty());
+      var inputData = _.template(this.template, this.property);
       var input = $(inputData);
       $(parent).append(input);
 
       $(input).find('input[type=radio]').change(function () {
         if ($(this).attr("checked") === "checked") {
-          self.getProperty().setValue($(this).val());
+          self.property.setValue($(this).val());
         }
       });
 
       return input;
     }
-  }
 
-  var _RadioInput = function (property) {
-    RadioInput.prototype = new CellEditor(property);
     return new RadioInput();
   }
 
-  var CheckBoxInput = function () {
-    this.setTemplate(JST['checkBox']);
+  var _CheckBoxInput = function (property, template) {
 
-    this.render = function (parent) {
+    function CheckBoxInput() {
+    }
+
+    CheckBoxInput.prototype = new CellEditor(property, template);
+    CheckBoxInput.prototype.constructor = CellEditor;
+    CheckBoxInput.prototype.render = function (parent) {
       var self = this;
-      var inputData = this.getTemplate()(this.getProperty());
+      var inputData = this.template(this.property);
       var input = $(inputData);
       $(parent).append(input);
 
       $(input).find('input[type=checkbox]').click(function () {
         if ($(this).attr("checked") === "checked") {
-          self.getProperty().setValue(true);
+          self.property.setValue(true);
         } else {
-          self.getProperty().setValue(false);
+          self.property.setValue(false);
         }
       });
       return input;
     }
-  }
 
-  var _CheckBoxInput = function (property) {
-    CheckBoxInput.prototype = new CellEditor(property);
     return new CheckBoxInput();
   }
 
-  var Select = function () {
 
-    this.render = function (parent) {
+  var _Select = function (property, template) {
+
+    function Select() {
+    }
+
+    Select.prototype = new CellEditor(property, template);
+    Select.prototype.constructor = CellEditor;
+    Select.prototype.render = function (parent) {
+
       var self = this;
 
       // For Selects we have to do at runtime and can't precompile
-      var inputData = _.template(JST['select'], this.getProperty());
+      var inputData = _.template(template, this.property);
       var input = $(inputData);
       $(parent).append(input);
 
       $(input).find('select').change(function () {
-        self.getProperty().setValue($(this).val());
+        self.property.setValue($(this).val());
       });
       return input;
     }
-  }
 
-  var _Select = function (property) {
-    Select.prototype = new CellEditor(property);
     return new Select();
   }
 
-  var TextArea = function () {
-    this.setTemplate(JST['textArea']);
 
-    this.render = function (parent) {
+  var _TextArea = function (property, template) {
+    function TextArea() {
+    }
+
+    TextArea.prototype = new CellEditor(property, template);
+    TextArea.prototype.constructor = CellEditor;
+    TextArea.prototype.render = function (parent) {
 
       var self = this;
-      var inputData = this.getTemplate()(this.getProperty());
+      var inputData = this.template(this.property);
       var input = $(inputData);
       $(parent).append(input);
 
       $(input).find('textarea').keyup(function () {
-        self.getProperty().setValue($(this).val());
+        self.property.setValue($(this).val());
       });
 
       return input;
     }
-  }
 
-  var _TextArea = function (property) {
-    TextArea.prototype = new CellEditor(property);
     return new TextArea();
   }
 
-
   Emma.AdapterFactory = AdapterFactory;
-  Emma.Form = _Form;
   Emma.Widget = Widget;
   Emma.CellEditor = CellEditor;
+
+  Emma.Form = _Form;
   Emma.TextInput = _TextInput;
   Emma.TextArea = _TextArea;
   Emma.RadioInput = _RadioInput;
