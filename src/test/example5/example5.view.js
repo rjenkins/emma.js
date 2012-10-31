@@ -14,6 +14,6 @@ $(function () {
   });
 
   // Instantiate our form
-  new Emma.Form(new MyApp.UserAdapterFactory(), $("#userFormWrapper"), user);
+  new Emma.Form(new MyApp.AdapterFactory(), $("#userFormWrapper"), user);
 
 });

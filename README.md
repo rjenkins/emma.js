@@ -376,7 +376,6 @@ var Widget = function (adapter, container, template) {
 Now that we've created an abstract Widget type, let's create our Form widget.
 
 ```javascript
-// Have form inherit from a new Widget object
 var _Form = function (adapter, container, template) {
 
   // Create a new prototype function for our form
@@ -1481,7 +1480,7 @@ widget to use the adapter factory and only call render if an object has been pas
 
   ...
 
- / Have form inherit from a new Widget object
+   // Have form inherit from a new Widget object
    var _Form = function (adapterFactory, container, input, template) {
 
      // Create a new prototype function for our form
@@ -1524,6 +1523,7 @@ Finally we'll implement an AdapterFactory called UserAdapterFactory and implemen
 check to see if the type of object that's being adapted is a User, if so we'll create a new UserAdapter,
 set it's target to our User object and return the adapter.
 
+**src/test/example5/exampl5.main.js**
 
 ```javascript
 /**
@@ -1614,14 +1614,15 @@ $(function () {
   });
 
   // Instantiate our form
-  new Emma.Form(new MyApp.UserAdapterFactory(), $("#userFormWrapper"), user);
+  new Emma.Form(new MyApp.AdapterFactory(), $("#userFormWrapper"), user);
 
 });
+
 ```
 
 Finally here's what our **example5.html** looks like with accompanied screenshot.
 
-```html
+```
 <!DOCTYPE html>
 <html>
 <head>
@@ -1632,7 +1633,7 @@ Finally here's what our **example5.html** looks like with accompanied screenshot
 
   <script type="text/javascript" src="../../lib/jquery.min.js"></script>
   <script src="../../lib/bootstrap.min.js"></script>
-  <script type="text/javascript" src="../../main/emma.js"></script>
+  <script type="text/javascript" src="emma_ex5.js"></script>
   <script type="text/javascript" src="../../lib/underscore.js"></script>
   <script src="../../main/widgetTemplates.js"></script>
   <script src="example5.main.js"></script>
@@ -1663,7 +1664,7 @@ Finally here's what our **example5.html** looks like with accompanied screenshot
 
 ### Using Adapter Factories
 
-We can use Adapter Factories to view adapt many different types of objects and create different factories that return
+We can use Adapter Factories to  adapt many different types of objects and create different factories that return
 different adapters for different circumstances. Let's add a new data type call Car to our examples and add some
 buttons that allow us to switch between editing a User and a Car. Let's create a new example called example6 and
 modify our main.js
@@ -1704,31 +1705,46 @@ $(function () {
 
 
   with (Emma) {
-    var MyAppAdapterFactory = function () {
-
-      this.adapt = function (object) {
-        if (object instanceof User) {
-          var userAdapter = new Adapter();
-
-          ...
-
-          userAdapter.setTarget(object);
-          return userAdapter
-        } else if (object instanceof Car) {
-          var carAdapter = new Adapter();
-          carAdapter.addProperty(new Property("make").setDisplayName("Make"))
-            .addProperty(new Property("model").setDisplayName("Model"))
-            .addProperty(new Property("year").setDisplayName("Year"));
-          carAdapter.setTarget(object);
-          return carAdapter;
-        }
-      }
-    }
-
 
     MyApp.AdapterFactory = function () {
-      MyAppAdapterFactory.prototype = new AdapterFactory();
-      return new MyAppAdapterFactory();
+      var adapterFactory = new AdapterFactory();
+      adapterFactory.adaptInternal[User] = function (object) {
+        var userAdapter = new Adapter();
+        userAdapter.addProperty(new Property("first").setDisplayName("First"))
+          .addProperty(new Property("last").setDisplayName("Last"))
+          .addProperty(new Property("username").setDisplayName("Username"))
+          .addProperty(new Property("email").setDisplayName("Email"))
+
+          .addProperty(new Property("sex").setDisplayName("Sex")
+          .setOptions({
+            m:"Male",
+            f:"Female"
+          }).setCellEditorType(CellEditor.RADIO_INPUT))
+
+          .addProperty(new Property("additionalInfo").setDisplayName("More Info").setCellEditorType(CellEditor
+          .TEXT_AREA))
+
+          .addProperty(new Property("role").setDisplayName("Role")
+          .setOptions({
+            admin:"Administrator",
+            user:"User"
+          }).setCellEditorType(CellEditor.SELECT))
+
+          .addProperty(new Property("active").setDisplayName("Active").setCellEditorType(CellEditor.CHECK_BOX));
+
+        userAdapter.setTarget(object);
+        return userAdapter
+      }
+      adapterFactory.adaptInternal[Car] = function (object) {
+        var carAdapter = new Adapter();
+        carAdapter.addProperty(new Property("make").setDisplayName("Make"))
+          .addProperty(new Property("model").setDisplayName("Model"))
+          .addProperty(new Property("year").setDisplayName("Year"));
+        carAdapter.setTarget(object);
+        return carAdapter;
+      }
+
+      return adapterFactory;
     }
   }
 });

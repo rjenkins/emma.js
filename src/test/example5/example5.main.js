@@ -24,43 +24,36 @@ $(function () {
 
 
   with (Emma) {
-    var UserAdapterFactory = function () {
+    MyApp.AdapterFactory = function () {
+      var adapterFactory = new AdapterFactory();
+      adapterFactory.adaptInternal[User] = function (object) {
+        var userAdapter = new Adapter();
+        userAdapter.addProperty(new Property("first").setDisplayName("First"))
+          .addProperty(new Property("last").setDisplayName("Last"))
+          .addProperty(new Property("username").setDisplayName("Username"))
+          .addProperty(new Property("email").setDisplayName("Email"))
 
-      this.adapt = function (object) {
-        if (object instanceof User) {
-          var userAdapter = new Adapter();
-          userAdapter.addProperty(new Property("first").setDisplayName("First"))
-            .addProperty(new Property("last").setDisplayName("Last"))
-            .addProperty(new Property("username").setDisplayName("Username"))
-            .addProperty(new Property("email").setDisplayName("Email"))
+          .addProperty(new Property("sex").setDisplayName("Sex")
+          .setOptions({
+            m:"Male",
+            f:"Female"
+          }).setCellEditorType(CellEditor.RADIO_INPUT))
 
-            .addProperty(new Property("sex").setDisplayName("Sex")
-            .setOptions({
-              m:"Male",
-              f:"Female"
-            }).setCellEditorType(CellEditor.RADIO_INPUT))
+          .addProperty(new Property("additionalInfo").setDisplayName("More Info").setCellEditorType(CellEditor
+          .TEXT_AREA))
 
-            .addProperty(new Property("additionalInfo").setDisplayName("More Info").setCellEditorType(CellEditor
-            .TEXT_AREA))
+          .addProperty(new Property("role").setDisplayName("Role")
+          .setOptions({
+            admin:"Administrator",
+            user:"User"
+          }).setCellEditorType(CellEditor.SELECT))
 
-            .addProperty(new Property("role").setDisplayName("Role")
-            .setOptions({
-              admin:"Administrator",
-              user:"User"
-            }).setCellEditorType(CellEditor.SELECT))
+          .addProperty(new Property("active").setDisplayName("Active").setCellEditorType(CellEditor.CHECK_BOX));
 
-            .addProperty(new Property("active").setDisplayName("Active").setCellEditorType(CellEditor.CHECK_BOX));
-
-          userAdapter.setTarget(object);
-          return userAdapter
-        }
+        userAdapter.setTarget(object);
+        return userAdapter
       }
-    }
-
-
-    MyApp.UserAdapterFactory = function () {
-      UserAdapterFactory.prototype = new AdapterFactory();
-      return new UserAdapterFactory();
+      return adapterFactory;
     }
   }
 });
