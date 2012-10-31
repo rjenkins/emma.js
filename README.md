@@ -1843,12 +1843,257 @@ of objects.
 
 ### Abstract Item Provider
 
-Here's are basic implementation of the Abstract Item Provider.
+Here's a basic implementation of the Abstract Item Provider Pattern.
+
+```javascript
+  // Item Provider
+  // An implementation of the ItemProvder pattern our constructor
+  // wraps a resource and adds a getContents method to the ItemProvider
+  // prototype for retrieving objects from resources.
+
+  var ItemProvider = Emma.ItemProvider = function (resource) {
+    this.resource = resource;
+  }
+
+  ItemProvider.prototype.getContents = function () {
+    if (this.resource !== undefined) {
+      return this.resource.contents;
+    } else {
+      return [];
+    }
+  }
+```
+
+### TableItemProvider
+
+Now that we have a basic type prototype in place for ItemProviders let's implement a TableItemProvider. Let's keep
+the implementation simple for now and implement the following in our provider.
+
+1. Provide the ability to set a caption for our Table with a fluent builder setter
+2. Add a helper method for adding columns to this table in the format of { key, displayName }
+
+... and here's our implementation.
+
+```javascript
+    var _TableItemProvider = function (resource) {
+
+    function TableItemProvider() {
+      this.columns = [];
+      this.caption = undefined;
+    }
+
+    TableItemProvider.prototype = new ItemProvider(resource);
+    TableItemProvider.prototype.constructor = ItemProvider;
+    TableItemProvider.prototype.getColumns = function () {
+      return this.columns;
+    }
+
+    TableItemProvider.prototype.setCaption = function (caption) {
+      this.caption = caption;
+      return this;
+    }
+
+    TableItemProvider.prototype.getCaption = function () {
+      return this.caption;
+    }
+
+    TableItemProvider.prototype.addColumn = function (key, displayName) {
+      this.columns.push({key:key, displayName:displayName});
+      return this;
+    }
+
+    return new TableItemProvider();
+
+  }
+
+  ...
+
+  Emma.Table = _Table;
+  Emma.TableItemProvider = _TableItemProvider;
 
 ```
+
+### Implementing our Table Widget
+
+Our Table widget is a bit bigger than our Form widget but it's not too complex, let's walk through the code real quick.
+
+1. Check if our container is not a <table> tag, if not throw an exception
+2. Check that we've been passed a valid TableItemProvider
+3. Create a constructor function for our Table, if input !== undefined call render
+4. A default set of templates if none provided by user as overrides
+5. Set up our Widget prototype and override render.
+6. Return a new Table
+
+```javascript
+
+  // Table - extends Widget, builds an html table.
+  // adapterFactory - a reference to an adapter factory for rendering rows in table
+  // container - must be a <table> tag
+  // input - a reference to a TableItemProvider
+  // template - an optional object with { tableCaption, tableHeader, tableRow } underscore templates.
+
+  var _Table = function (adapterFactory, container, input, template) {
+
+    if (container == undefined || $(container).is('table') === false)
+      throw "container must be a table"
+
+    if(!(input instanceof Emma.TableItemProvider) === false) {
+      throw "input must be a TableItemProvider"
+    }
+    // Create a new prototype function for our form
+    function Table() {
+      if (this.input !== undefined) {
+        this.render(this.input);
+      }
+    }
+
+    var defaultTemplate = {
+      tableCaption:JST['tableCaption'],
+      tableHeader:JST['tableHeader'],
+      tableRow:JST['tableRow']
+    };
+
+    Table.prototype = new Widget(adapterFactory, container, input, template || defaultTemplate);
+    Table.prototype.constructor = Widget;
+    Table.prototype.render = function (input) {
+
+      var input = input || this.input;
+
+      var content = this.container;
+      $(content).empty();
+
+      if (input.getCaption() !== undefined) {
+        $(content).append(this.template.tableCaption(input));
+      }
+
+      $(content).append(this.template.tableHeader(input));
+
+      var tableBody = $(JST['tableBody']);
+      var rowValues = [];
+      var self = this;
+
+      input.getContents().forEach(function (object) {
+        var adapter = self.adapterFactory.adapt(object);
+        input.getColumns().forEach(function (column) {
+          rowValues.push(adapter.getPropertyById(column.key).getValue());
+        });
+
+        $(tableBody).append(_.template(self.template.tableRow, { values:rowValues}))
+          .find("tr").last().click(function () {
+            console.log(adapter.getTarget());
+          });
+
+        rowValues = [];
+      });
+
+      $(content).append(tableBody);
+    }
+
+    return new Table();
+  }
+```
+
+### A closer look at Table.prototype.render
+
+Let's just dig into render for a moment comments inline in the code
+
+```javascript
+
+Table.prototype.render = function (input) {
+
+      // If we're not passed input by the user, use the input
+      // passed in during construction.
+
+      var input = input || this.input;
+
+      // Retrieve and clear out our container
+      var content = this.container;
+      $(content).empty();
+
+      // If the user set a caption add it to our HTML
+      if (input.getCaption() !== undefined) {
+        $(content).append(this.template.tableCaption(input));
+      }
+
+      // Set up table headers
+      $(content).append(this.template.tableHeader(input));
+
+      // Get our base tbody tag
+      var tableBody = $(JST['tableBody']);
+      var rowValues = [];
+      var self = this;
+
+      // Get the contents of our TableItemProvider, forEach item in the Provider (and wrapped resource)
+      // adapt the object using our adapter factory. Now for each column defined in the TableItemProvider, retrieve
+      // the associated property from the adapter, get it's value and add to rowValues
+      input.getContents().forEach(function (object) {
+        var adapter = self.adapterFactory.adapt(object);
+        input.getColumns().forEach(function (column) {
+          rowValues.push(adapter.getPropertyById(column.key).getValue());
+        });
+
+        // We've created a row, now use the tableRow template and rowValues to append this row to the tbody.
+        // Also once we've appended the row let's add a click handler to print out the contents of our target to
+        console.log when a row is clicked in the table.
+        $(tableBody).append(_.template(self.template.tableRow, { values:rowValues}))
+          .find("tr").last().click(function () {
+            console.log(adapter.getTarget());
+          });
+
+        rowValues = [];
+      });
+
+      $(content).append(tableBody);
+    }
+```
+
+### Table Templates and adding getPropertyById to Adapter.
+
+In order to support tables we had to add some small templates and a new method to the Adapter.
+
+```javascript
+// Table Templates
+window.JST['tableCaption'] = _.template(
+  "<caption><%= caption %></caption>"
+);
+
+window.JST['tableHeader'] = _.template(
+  "<thead<tr>" +
+    "<% _.each(getColumns(), function(column) { %>" +
+    "<th><%= column.displayName %></th>" +
+    "<% }); %>" +
+    "</tr></thead>"
+);
+
+window.JST['tableBody'] = "<tbody></tbody>"
+
+window.JST['tableRow'] =
+  "<tr>" +
+    "<% _.each(values, function(value) { %>" +
+    "<td>" +
+    "<%= value %>" +
+    "</td>" +
+    "<% }); %>" +
+    "</tr>";
 ```
 
 
+```javascript
+...
+
+    var setTarget = function (_target) {
+      target = _target;
+      return this;
+    }
+
+    // Filter item properties by Id and return the first matching
+    // property in the list of itemProperties
+    var getPropertyById = function (id) {
+      return _.filter(itemProperties, function (prop) {
+        return prop.id === id;
+      })[0];
+    }
+```
 
 
 

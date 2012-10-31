@@ -281,12 +281,20 @@
     return new Form();
   }
 
-  // Have form inherit from a new Widget object
+  // Table - extends Widget, builds an html table.
+  // adapterFactory - a reference to an adapter factory for rendering rows in table
+  // container - must be a <table> tag
+  // input - a reference to a TableItemProvider
+  // template - an optional object with { tableCaption, tableHeader, tableRow } underscore templates.
+
   var _Table = function (adapterFactory, container, input, template) {
 
     if (container == undefined || $(container).is('table') === false)
       throw "container must be a table"
 
+    if(!(input instanceof Emma.TableItemProvider) === false) {
+      throw "input must be a TableItemProvider"
+    }
     // Create a new prototype function for our form
     function Table() {
       if (this.input !== undefined) {
@@ -319,12 +327,18 @@
       var rowValues = [];
       var self = this;
 
+      // Get the contents of our TableItemProvider, forEach item in the Provider (and wrapped resource)
+      // adapt the object using our adapter factory. Now for each column defined in the TableItemProvider, retrieve
+      // the associated property from the adapter, get it's value and add to rowValues.
       input.getContents().forEach(function (object) {
         var adapter = self.adapterFactory.adapt(object);
         input.getColumns().forEach(function (column) {
           rowValues.push(adapter.getPropertyById(column.key).getValue());
         });
 
+        // We've created a row, now use the tableRow template and rowValues to append this row to the tbody.
+        // Also once we've appended the row let's add a click handler to print out the contents of our target to
+        // console.log when a row is clicked in the table.
         $(tableBody).append(_.template(self.template.tableRow, { values:rowValues}))
           .find("tr").last().click(function () {
             console.log(adapter.getTarget());
@@ -334,8 +348,6 @@
       });
 
       $(content).append(tableBody);
-
-
     }
 
     return new Table();
@@ -486,12 +498,17 @@
     return new TextArea();
   }
 
+  // Item Provider
+  // An implementation of the ItemProvder pattern our constructor
+  // wraps a resource and adds a getContents method to the ItemProvider
+  // prototype for retrieving objects from resources.
+
   var ItemProvider = Emma.ItemProvider = function (resource) {
     this.resource = resource;
   }
 
   ItemProvider.prototype.getContents = function () {
-    if (this.resource != undefined) {
+    if (this.resource !== undefined) {
       return this.resource.contents;
     } else {
       return [];

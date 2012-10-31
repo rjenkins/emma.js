@@ -14,16 +14,16 @@ $(function () {
   });
 
   var car = new MyApp.model.Car({ make:"Nissan", model:"Pathfinder",
-    year: 1999});
+    year:1999});
 
   // Instantiate our form
   var form = new Emma.Form(new MyApp.AdapterFactory(), $("#userFormWrapper"), user);
 
-  $("#editUser").click(function() {
+  $("#editUser").click(function () {
     form.render(user);
   });
 
-  $("#editCar").click(function() {
+  $("#editCar").click(function () {
     form.render(car);
   });
 

@@ -92,9 +92,8 @@ window.JST['formActions'] = _.template(
 );
 
 // Table Templates
-
 window.JST['tableCaption'] = _.template(
-  "<caption><%= getCaption() %></caption>"
+  "<caption><%= caption %></caption>"
 );
 
 window.JST['tableHeader'] = _.template(

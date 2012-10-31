@@ -33,32 +33,30 @@ $(function () {
   });
 
   var car = new MyApp.model.Car({ make:"Nissan", model:"Pathfinder",
-    year: 1999});
+    year:1999});
 
   var car1 = new MyApp.model.Car({ make:"Nissan", model:"Pathfinder",
-    year: 1999});
+    year:1999});
 
   var car2 = new MyApp.model.Car({ make:"Nissan", model:"Pathfinder",
-    year: 1999});
-
+    year:1999});
 
 
   var adapterFactory = new MyApp.AdapterFactory();
 
-  var userResource = new Emma.Resource([user,user1, user2, user3]);
+  var userResource = new Emma.Resource([user, user1, user2, user3]);
   var carResource = new Emma.Resource([car, car1, car2]);
 
-  var tableItemProvider = new Emma.TableItemProvider(userResource, adapterFactory)
+  var tableItemProvider = new Emma.TableItemProvider(userResource)
     .setCaption("Users").addColumn("first", "First Name")
     .addColumn("last", "Last Name")
     .addColumn("email", "Email Address")
     .addColumn("role", "Role");
 
-  var tableItemProviderCar = new Emma.TableItemProvider(carResource, adapterFactory)
+  var tableItemProviderCar = new Emma.TableItemProvider(carResource)
     .setCaption("Cars").addColumn("make", "Make")
     .addColumn("model", "Model")
-    .addColumn("year", "Year")
-
+    .addColumn("year", "Year");
 
 
   // Instantiate our form
