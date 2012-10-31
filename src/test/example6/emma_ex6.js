@@ -51,20 +51,11 @@
       return this;
     }
 
-    // Filter item properties by Id and return the first matching
-    // property in the list of itemProperties
-    var getPropertyById = function (id) {
-      return _.filter(itemProperties, function (prop) {
-        return prop.id === id;
-      })[0];
-    }
-
     return {
       addProperty:addProperty,
       getProperties:getProperties,
       getTarget:getTarget,
-      setTarget:setTarget,
-      getPropertyById:getPropertyById
+      setTarget:setTarget
     }
   }
 
@@ -166,13 +157,20 @@
 
   // Use the module pattern for Resource allowing for Getter/Setter based access,
   // but in extended versions we'll remove the setContents function from the public API
-  var Resource = Emma.Resource = function (contents) {
-    this.contents = contents || [];
-  };
+  var Resource = Emma.Resource = function () {
 
-  Resource.prototype.load = function () {
-    throw "Function not supported without override"
-  }
+    var contents = [];
+
+    return {
+      getContents:function () {
+        return contents
+      },
+      setContents:function (_contents) {
+        contents = _contents;
+        return this;
+      }
+    }
+  };
 
 //  var RestResource = function (_uri, _loadOnCreate) {
 //
@@ -195,6 +193,17 @@
 //    }
 //  };
 
+  var ItemProvider = function (resource) {
+
+    this.getContents = function () {
+      if (resource != undefined) {
+        return resource.getContents();
+      } else {
+        return [];
+      }
+    }
+  };
+
   var AdapterFactory = function () {
     this.adaptInternal = {};
   };
@@ -215,15 +224,11 @@
     })
   };
 
-// Widgets and the like
+  // Widgets and the like
   var Widget = function (adapterFactory, container, input, template) {
 
     if (adapterFactory.constructor != AdapterFactory) {
       throw "adapterFactory is not a AdapterFactory object"
-    }
-
-    if (!(this) instanceof Widget) {
-      new Widget(adapterFactory, container, input, template);
     }
 
     this.adapterFactory = adapterFactory;
@@ -279,61 +284,6 @@
     }
 
     return new Form();
-  }
-
-  // Have form inherit from a new Widget object
-  var _Table = function (adapterFactory, container, input, template) {
-
-    if (container == undefined || $(container).is('table') === false)
-      throw "container must be a table"
-
-    // Create a new prototype function for our form
-    function Table() {
-      if (this.input !== undefined) {
-        this.render(this.input);
-      }
-    }
-
-    var defaultTemplate = {
-      tableCaption:JST['tableCaption'],
-      tableHeader:JST['tableHeader']
-    };
-
-    Table.prototype = new Widget(adapterFactory, container, input, template || defaultTemplate);
-    Table.prototype.constructor = Widget;
-    Table.prototype.render = function (input) {
-
-      var input = input || this.input;
-
-      var content = this.container;
-      $(content).empty();
-
-      if (input.getCaption() !== undefined) {
-        $(content).append(this.template.tableCaption(input));
-      }
-
-      $(content).append(this.template.tableHeader(input));
-
-      var tableBody = $(JST['tableBody']);
-      var rowValues = [];
-      var self = this;
-
-      input.getContents().forEach(function (object) {
-        var adapter = self.adapterFactory.adapt(object);
-        input.getColumns().forEach(function (column) {
-          rowValues.push(adapter.getPropertyById(column.key).getValue());
-        });
-
-        $(tableBody).append(_.template(JST['tableRow'], { values:rowValues}));
-        rowValues = [];
-      });
-
-      $(content).append(tableBody);
-
-
-    }
-
-    return new Table();
   }
 
   var CellEditor = function (property, template) {
@@ -481,54 +431,6 @@
     return new TextArea();
   }
 
-  var ItemProvider = Emma.ItemProvider = function (resource) {
-    this.resource = resource;
-  }
-
-  ItemProvider.prototype.getContents = function () {
-    if (this.resource != undefined) {
-      return this.resource.contents;
-    } else {
-      return [];
-    }
-  }
-
-  var _TableItemProvider = function (resource, adapterFactory) {
-
-    function TableItemProvider() {
-      this.columns = [];
-      this.caption = undefined;
-      this.adapterFactory = adapterFactory;
-    }
-
-    TableItemProvider.prototype = new ItemProvider(resource);
-    TableItemProvider.prototype.constructor = ItemProvider;
-    TableItemProvider.prototype.getColumns = function () {
-      return this.columns;
-    }
-
-    TableItemProvider.prototype.setCaption = function (caption) {
-      this.caption = caption;
-      return this;
-    }
-
-    TableItemProvider.prototype.getCaption = function () {
-      return this.caption;
-    }
-
-    TableItemProvider.prototype.addColumn = function (key, displayName) {
-      this.columns.push({key:key, displayName:displayName});
-      return this;
-    }
-
-    TableItemProvider.prototype.getAdapterFactory = function () {
-      return this.adapterFactory;
-    }
-
-    return new TableItemProvider();
-
-  }
-
   Emma.AdapterFactory = AdapterFactory;
   Emma.Widget = Widget;
   Emma.CellEditor = CellEditor;
@@ -539,8 +441,6 @@
   Emma.RadioInput = _RadioInput;
   Emma.CheckBoxInput = _CheckBoxInput;
   Emma.Select = _Select;
-  Emma.Table = _Table;
-  Emma.TableItemProvider = _TableItemProvider;
 
 }
   )

@@ -1834,19 +1834,19 @@ called am ItemProvider.
 
 ## The ItemProvider Pattern
 
-The purpose of the ItemProvider pattern is to provide an adapter between Resources and Widgets. Like Adapters the
-ItemProvider contain meta data needed by the widget for rendering and also retrain a reference to an underlying
-resource. Like anything else there is a few ways we could implement this. One way would be to have a single
-ItemProvider with lots of different responsibilities or we could break ItemProviders out into different functions
-based off what they're providing for. We'll going to choose the later but you could always choose to consolidate this
-functionality down to a smaller set of objects.
+The purpose of the ItemProvider pattern adapt Resources to Widgets. Like Adapters the ItemProvider contain meta data
+needed by the widget for rendering and also retrain a reference to an underlying resource. Like anything else there
+is a few ways we could implement this. One way would be to have a single ItemProvider with lots of different
+responsibilities or we could break ItemProviders out into different functions based off what they're providing for.
+We'll going to choose the later but you could always choose to consolidate this functionality down to a smaller set
+of objects.
 
 ### Abstract Item Provider
 
 Here's are basic implementation of the Abstract Item Provider.
 
 ```
-
+```
 
 
 

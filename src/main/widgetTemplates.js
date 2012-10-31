@@ -91,6 +91,32 @@ window.JST['formActions'] = _.template(
     "</div>"
 );
 
+// Table Templates
+
+window.JST['tableCaption'] = _.template(
+  "<caption><%= getCaption() %></caption>"
+);
+
+window.JST['tableHeader'] = _.template(
+  "<thead<tr>" +
+    "<% _.each(getColumns(), function(column) { %>" +
+    "<th><%= column.displayName %></th>" +
+    "<% }); %>" +
+    "</tr></thead>"
+);
+
+window.JST['tableBody'] = "<tbody></tbody>"
+
+window.JST['tableRow'] =
+  "<tr>" +
+    "<% _.each(values, function(value) { %>" +
+    "<td>" +
+    "<%= value %>" +
+    "</td>" +
+    "<% }); %>" +
+    "</tr>";
+
+
 
 
 
