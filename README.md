@@ -1834,9 +1834,9 @@ called am ItemProvider.
 
 ## The ItemProvider Pattern
 
-The purpose of the ItemProvider pattern adapt Resources to Widgets. Like Adapters the ItemProvider contain meta data
-needed by the widget for rendering and also retrain a reference to an underlying resource. Like anything else there
-is a few ways we could implement this. One way would be to have a single ItemProvider with lots of different
+The purpose of the ItemProvider pattern is to adapt Resources to Widgets. Like Adapters the ItemProvider contain meta
+data needed by the widget for rendering and also retrain a reference to an underlying resource. Like anything else
+there is a few ways we could implement this. One way would be to have a single ItemProvider with lots of different
 responsibilities or we could break ItemProviders out into different functions based off what they're providing for.
 We'll going to choose the later but you could always choose to consolidate this functionality down to a smaller set
 of objects.
@@ -2167,7 +2167,8 @@ $(function () {
       username:"jlee", email:"jlee@stereo.com", sex:"m", additionalInfo:"None", active:true, role:"admin"
     }),
     new MyApp.model.User({ first:"Jimi", last:"Hendrix",
-      username:"jhendrix", email:"jhendrix@theexperience.com", sex:"m", additionalInfo:"None", active:false, role:"false"
+      username:"jhendrix", email:"jhendrix@theexperience.com", sex:"m", additionalInfo:"None", active:false,
+      role:"user"
     })]);
 
   var carResource = new Emma.Resource([new MyApp.model.Car({ make:"Nissan", model:"Pathfinder",

@@ -29,7 +29,7 @@ $(function () {
       username:"jlee", email:"jlee@stereo.com", sex:"m", additionalInfo:"None", active:true, role:"admin"
     }),
     new MyApp.model.User({ first:"Jimi", last:"Hendrix",
-      username:"jhendrix", email:"jhendrix@theexperience.com", sex:"m", additionalInfo:"None", active:false, role:"false"
+      username:"jhendrix", email:"jhendrix@theexperience.com", sex:"m", additionalInfo:"None", active:false, role:"user"
     })]);
 
   var carResource = new Emma.Resource([new MyApp.model.Car({ make:"Nissan", model:"Pathfinder",
