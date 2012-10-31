@@ -2134,7 +2134,7 @@ with the table.
 </html>
 ```
 
-**src/test/example7/example7.view.js
+**src/test/example7/example7.view.js**
 ```
 /**
  * Created by JetBrains WebStorm.
@@ -2190,10 +2190,11 @@ $(function () {
   // Instantiate our form
   new Emma.Table(adapterFactory, $("#tableExample"), tableItemProvider);
   new Emma.Table(adapterFactory, $("#tableExample2"), tableItemProviderCar);
-
-
 });
 ```
+
+![example7](https://raw.github.com/rjenkins/emma/master/img/example_7.png)
+
 
 
 
