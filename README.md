@@ -949,7 +949,7 @@ instantiate our form widget and pass it our User Adapter.
 
 And here's what it looks like when we view it in our browser.
 
-![example3](https://raw.github.com/rjenkins/emma/master/img/example_3.png)
+![example3](https://raw.github.com/rjenkins/emma.js/master/img/example_3.png)
 
 ## Wiring up our Submit
 
@@ -982,7 +982,7 @@ var Form = function (adapter, container) {
 
 Now let's modify our object, save and look at the console output.
 
-![example3_save](https://raw.github.com/rjenkins/emma/master/img/example_3_save.png)
+![example3_save](https://raw.github.com/rjenkins/emma.js/master/img/example_3_save.png)
 
 Ok well that's pretty cool, but what can we do to improve this further? Well we know that forms are rarely this
 simple, we'll need to support various input types like selects, textareas and the like. Additionally we'll have some
@@ -1407,11 +1407,11 @@ user object and modify our Properties to use these new Cell Editors.
 
 Here's how our new Form looks in our browser.
 
-![example4](https://raw.github.com/rjenkins/emma/master/img/example_4.png)
+![example4](https://raw.github.com/rjenkins/emma.js/master/img/example_4.png)
 
 Now let's inspect the output from our save action after we've modified our input.
 
-![example4_save](https://raw.github.com/rjenkins/emma/master/img/example_4_save.png)
+![example4_save](https://raw.github.com/rjenkins/emma.js/master/img/example_4_save.png)
 
 ### Reviewing our latest example
 
@@ -1513,7 +1513,7 @@ Let's start to break our example up into something that more resembles an applic
 an implementation of AdapterFactory. We're going to break the css out into a separate file and move all the
 Javascript out of our HTML and put it into 2 files example5.main.js and example5.view.js
 
-![example5_organize](https://raw.github.com/rjenkins/emma/master/img/example_5_organize.png)
+![example5_organize](https://raw.github.com/rjenkins/emma.js/master/img/example_5_organize.png)
 
 In **example5.main.js** we're going to start to stub out an actual application. We'll create a module or namespace
 called MyApp and attach it to window, we'll also create a MyApp.model and create a proper User function to create a
@@ -1660,7 +1660,7 @@ Finally here's what our **example5.html** looks like with accompanied screenshot
 </body>
 </html>
 ```
-![example4](https://raw.github.com/rjenkins/emma/master/img/example_4.png)
+![example4](https://raw.github.com/rjenkins/emma.js/master/img/example_4.png)
 
 ### Using Adapter Factories
 
@@ -1790,9 +1790,9 @@ Now we can click the button to toggle between the different data types and modif
 we can go back and forth each time we click the button the form re-renderings,
 adapting the new datatype and redrawing itself, attaching all listeners as needed is ready for interaction.
 
-![example6](https://raw.github.com/rjenkins/emma/master/img/example_6.png)
+![example6](https://raw.github.com/rjenkins/emma.js/master/img/example_6.png)
 
-![example6_save](https://raw.github.com/rjenkins/emma/master/img/example_6_save.png)
+![example6_save](https://raw.github.com/rjenkins/emma.js/master/img/example_6_save.png)
 
 
 ### Tables, Lists, Trees and other Widgets
@@ -2194,7 +2194,7 @@ $(function () {
 });
 ```
 
-![example7](https://raw.github.com/rjenkins/emma/master/img/example_7.png)
+![example7](https://raw.github.com/rjenkins/emma.js/master/img/example_7.png)
 
 ### Making the Table editable.
 
