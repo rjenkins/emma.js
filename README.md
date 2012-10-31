@@ -626,7 +626,7 @@ We'll need to expose some of these functions on our Emma object so let's do that
 Emma's still small enough to paste the contents of the library in here pretty easily,
 so let's do that now for review before we start to use our Form widget.
 
-**src/main/test/example4/emma_ex3.js**
+**src/main/test/example3/emma_ex3.js**
 
 ```javascript
 /**
@@ -1417,7 +1417,7 @@ Now let's inspect the output from our save action after we've modified our input
 ### Reviewing our latest example
 
 So we've made much larger use of CellEditors and greatly expanded the functionality of our Form,
-but there's still lots of room for improvement. Let's take a moment and look at how we're creating our adapter. Right
+but there's still lots of room for improvement. Let's take a moment and look at how we're creating our adapters. Right
 now we've got our logic for adapter creation hard-wired into the view itself, that's probably not a good idea. Let's
 take a pass at fixing that.
 
@@ -1427,12 +1427,34 @@ The purpose of the Adapter Factory pattern is to decouple the logic of creating 
 Factory pattern is essentially an abstract factory and we provide implementations that can be passed to widgets in
 our view.
 
-```javascript
-var AdapterFactory = function () {};
+Once again there's several ways to implement our factory, the approach I've taken is to defined a zero argument
+constructor that creates an adaptInternal hash for storing a reference to a type and function used for adapting that
+type.
 
-AdapterFactory.prototype.adapt = function (object) {
-  throw "Function not supported without override"
-}
+Then we've created an adapt function, it looks up the constructor type of our object in adapterInternal and if found
+returns the result of calling that function, otherwise it calls the defaultAdapt function which creates a simple
+adapter for our model object.
+
+```javascript
+  var AdapterFactory = function () {
+    this.adaptInternal = {};
+  };
+
+  AdapterFactory.prototype.adapt = function (object) {
+    var adaptFunction = this.adaptInternal[object.constructor]
+    if (adaptFunction !== undefined) {
+      return adaptFunction(object);
+    } else {
+      return this.defaultAdapt(object);
+    }
+  }
+
+  AdapterFactory.prototype.defaultAdapt = function (object) {
+    var defaultAdapter = Adapter();
+    _.each(object, function (key) {
+      defaultAdapter.addProperty(new Property(key));
+    })
+  };
 ```
 
 Now we can refactor our Widget class to accept an AdapterFactory rather than an adapter. We'll also update our Form
@@ -1441,76 +1463,49 @@ widget to use the adapter factory and only call render if an object has been pas
 ```javascript
 // Widgets and the like
 
-  var Widget = function (_adapterFactory) {
+   var Widget = function (adapterFactory, container, input, template) {
 
-    if (_adapterFactory.constructor != AdapterFactory) {
-      throw "adapterFactory is not a AdapterFactory object"
-    }
+     if (adapterFactory.constructor != AdapterFactory) {
+       throw "adapterFactory is not a AdapterFactory object"
+     }
 
-    var adapterFactory = _adapterFactory;
-    var template = "";
+     this.adapterFactory = adapterFactory;
+     this.template = template;
+     this.container = container;
+     this.input = input;
+   }
 
-    this.getAdapterFactory = function () {
-      return adapterFactory;
-    }
-
-    this.getTemplate = function () {
-      return template;
-    }
-
-    this.setTemplate = function (_template) {
-      template = _template;
-    }
-  };
-
-  Widget.prototype.render = function () {
-    //No-Op
-  }
+   Widget.prototype.render = function () {
+     throw "Function not supported without override"
+   }
 
   ...
 
-  var Form = function (adapterFactory, container, input) {
-    this.setTemplate($(JST['form']()));
+ / Have form inherit from a new Widget object
+   var _Form = function (adapterFactory, container, input, template) {
 
-    this.render = function (input) {
+     // Create a new prototype function for our form
+     function Form() {
+       if (this.input !== undefined) {
+         this.render(this.input);
+       }
+     }
 
-      var self = this;
-      var content = this.getTemplate();
-      $(content).empty();
-      $(content).append($(JST['formLegend']()));
+     Form.prototype = new Widget(adapterFactory, container, input, $(JST['form']()));
+     Form.prototype.constructor = Widget;
+     Form.prototype.render = function (input) {
 
-      var adapter = adapterFactory.adapt(input);
+       var input = input || this.input;
 
-      adapter.getProperties().forEach(function (property) {
-        property.getCellEditor().render(content);
-      });
+       var content = this.template;
+       $(content).empty();
+       $(content).append($(JST['formLegend']()));
 
-      $(content).append($(JST['formActions']()));
+       var adapter = this.adapterFactory.adapt(input);
 
-      $(content).submit(function () {
-        var target = adapter.getTarget();
-        for (var k in target) {
-          console.log(k + " " + target[k]);
-        }
-        return false;
-      });
-
-      if (container !== undefined) {
-        $(container).append(content)
-      }
-
-      return content;
-    }
-
-    if (input !== undefined) {
-      this.render(input);
-    }
+       ...
   }
 
-  var _Form = function (adapterFactory, container, input) {
-    Form.prototype = new Widget(adapterFactory)
-    return new Form(adapterFactory, container, input);
-  }
 ```
 
 ### Refactoring our example to use the Adapter Factory
@@ -1519,7 +1514,7 @@ Let's start to break our example up into something that more resembles an applic
 an implementation of AdapterFactory. We're going to break the css out into a separate file and move all the
 Javascript out of our HTML and put it into 2 files example5.main.js and example5.view.js
 
-![example4_save](https://raw.github.com/rjenkins/emma/master/img/example_5_organize.png)
+![example5_organize](https://raw.github.com/rjenkins/emma/master/img/example_5_organize.png)
 
 In **example5.main.js** we're going to start to stub out an actual application. We'll create a module or namespace
 called MyApp and attach it to window, we'll also create a MyApp.model and create a proper User function to create a
