@@ -142,17 +142,7 @@
   }
 
   Property.prototype.getCellEditor = function () {
-    if (this.cellEditorType === CellEditor.CHECK_BOX) {
-      return new Emma.CheckBoxInput(this, JST['checkBox']);
-    } else if (this.cellEditorType === CellEditor.SELECT || this.cellEditorType === CellEditor.SELECT_MULTIPLE) {
-      return new Emma.Select(this, JST['select']);
-    } else if (this.cellEditorType === CellEditor.RADIO_INPUT) {
-      return new Emma.RadioInput(this, JST['inputRadio']);
-    } else if (this.cellEditorType === CellEditor.TEXT_AREA) {
-      return new Emma.TextArea(this, JST['textArea']);
-    } else {
-      return new Emma.TextInput(this, JST['inputText']);
-    }
+    return this.defaultCellEditorFactory.getCellEditor(this);
   }
 
   Property.prototype.setOptions = function (_options) {
@@ -163,6 +153,7 @@
   Property.prototype.getOptions = function () {
     return this.options;
   }
+
 
   // Use the module pattern for Resource allowing for Getter/Setter based access,
   // but in extended versions we'll remove the setContents function from the public API
@@ -319,18 +310,24 @@
       var rowValues = [];
       var self = this;
 
+      var colNum = 0;
       input.getContents().forEach(function (object) {
         var adapter = self.adapterFactory.adapt(object);
         input.getColumns().forEach(function (column) {
-          rowValues.push(adapter.getPropertyById(column.key).getValue());
+          rowValues.push(adapter.getPropertyById(column.key).getCellEditor().render().html());
         });
 
         $(tableBody).append(_.template(self.template.tableRow, { values:rowValues}))
           .find("tr").last().click(function () {
             console.log(adapter.getTarget());
+            var myCol = $(this).index();
+            var $tr = $(this).closest('tr');
+            var myRow = $tr.index();
+            console.log(myRow);
           });
 
         rowValues = [];
+        colNum++;
       });
 
       $(content).append(tableBody);
@@ -360,6 +357,40 @@
   CellEditor.SELECT_MULTIPLE = "SELECT_MULTIPLE";
   CellEditor.RADIO_INPUT = "RADIO_INPUT";
   CellEditor.TEXT_AREA = "TEXT_AREA";
+
+  var CellEditorFactory = Emma.CellEditorFactory = function () {
+
+    var editorMap = {
+      CHECK_BOX:function (property) {
+        return new Emma.CheckBoxInput(property, JST['checkBox']);
+      },
+      SELECT:function (property) {
+        return new Emma.Select(property, JST['select']);
+      },
+      SELECT_MULTIPLE:function (property) {
+        return new Emma.Select(property, JST['select']);
+      },
+      RADIO_INPUT:function (property) {
+        return new Emma.RadioInput(property, JST['inputRadio']);
+      },
+      TEXT_AREA:function (property) {
+        return new Emma.TextArea(property, JST['textArea']);
+      },
+      TEXT_INPUT:function (property) {
+        return  new Emma.TextInput(property, JST['inputText']);
+      }
+    }
+
+    return {
+      getCellEditor:function (property) {
+        return editorMap[property.cellEditorType](property)
+      }
+    }
+  }
+
+
+  // Add a Default Cell Editor Factory to the Property Prototype
+  Property.prototype.defaultCellEditorFactory = CellEditorFactory();
 
   var _TextInput = function (property, template) {
 
@@ -528,6 +559,7 @@
     return new TableItemProvider();
 
   }
+
 
   Emma.AdapterFactory = AdapterFactory;
   Emma.Widget = Widget;

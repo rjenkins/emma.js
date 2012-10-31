@@ -2196,6 +2196,79 @@ $(function () {
 
 ![example7](https://raw.github.com/rjenkins/emma/master/img/example_7.png)
 
+### Making the Table editable.
+
+It's a common request to make tables or grids which are rich in functionality, including editting and seeing as we
+already have the Cell Editor library in place it shouldn't we to hard to get that working,
+right? Remember how our CellEditor creation logic was implemented in the property, let's move that into a new object.
+
+### The CellEditor Factory Pattern
+
+Just like Adapter Factories we can use the Abstract Factory pattern to create cell editors and use them in other
+places or allow us or users of our API to override Cell Editor instantiation logic. Here's the existing factory
+logic, let's add a public API for CellEditors and create a default one for our Properties.
+
+**Remove the following**
+
+```javascript```
+Property.prototype.getCellEditor = function () {
+    if (this.cellEditorType === CellEditor.CHECK_BOX) {
+      return new Emma.CheckBoxInput(this, JST['checkBox']);
+    } else if (this.cellEditorType === CellEditor.SELECT || this.cellEditorType === CellEditor.SELECT_MULTIPLE) {
+      return new Emma.Select(this, JST['select']);
+    } else if (this.cellEditorType === CellEditor.RADIO_INPUT) {
+      return new Emma.RadioInput(this, JST['inputRadio']);
+    } else if (this.cellEditorType === CellEditor.TEXT_AREA) {
+      return new Emma.TextArea(this, JST['textArea']);
+    } else {
+      return new Emma.TextInput(this, JST['inputText']);
+    }
+  }
+```
+
+and we'll add
+
+```javascript
+
+  ...
+
+  Property.prototype.getCellEditor = function () {
+    return this.defaultCellEditorFactory(this.cellEditorType);
+  }
+
+  var CellEditorFactory = Emma.CellEditorFactory = function () {
+
+    return {
+      CHECK_BOX:function () {
+        return new Emma.CheckBoxInput(this, JST['checkBox']);
+      },
+      SELECT:function () {
+        return new Emma.Select(this, JST['select']);
+      },
+      SELECT_MULTIPLE:function () {
+        return new Emma.Select(this, JST['select']);
+      },
+      RADIO_INPUT:function () {
+        return new Emma.RadioInput(this, JST['inputRadio']);
+      },
+      TEXT_AREA:function () {
+        return new Emma.TextArea(this, JST['textArea']);
+      },
+      TEXT_INPUT:function () {
+        return  new Emma.TextInput(this, JST['inputText']);
+      }
+    }
+  }
+
+  // Add a Default Cell Editor Factory to the Property Prototype
+  Property.prototype.defaultCellEditorFactory = CellEditorFactory();
+```
+
+Now all we have to do is modify our table render logic.
+
+
+
+
 
 
 
