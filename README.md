@@ -1795,7 +1795,7 @@ adapting the new datatype and redrawing itself, attaching all listeners as neede
 ![example6_save](https://raw.github.com/rjenkins/emma.js/master/img/example_6_save.png)
 
 
-## Resource Widget (Tables, Lists, Trees and others)
+## Resource Widgets (Tables, Lists, Trees and others)
 
 So far we've just looked at the Form widget and it's designed (right now) to only deal with looking at one element
 so let's consider implementing some widgets that deal with lots of elements. For that we need to take a step back and
@@ -2285,6 +2285,16 @@ input.getContents().forEach(function (object) {
 Here's a screenshot.
 
 ![example8_first](https://raw.github.com/rjenkins/emma.js/master/img/example_8_first.png)
+
+Not bad we we can improve both the layout and the code, for starters we can remove the labels on the form elements
+with css (we could do this in code as well by not rendering them but for now we'll just modify the css).
+
+![example8_nolabel](https://raw.github.com/rjenkins/emma.js/master/img/example_8_nolabel.png)
+
+Ok, that's a bit better, but we probably don't want all the rows in edit mode all the time,
+what we probably want is an additional column with an edit link that when clicks puts the row in edit mode and then
+is replaced with a save button. Once saved the table should re-render in non-edit mode. Let's look at making those
+changes now.
 
 
 
