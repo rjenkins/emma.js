@@ -2287,6 +2287,20 @@ what we probably want is an additional column with an edit link that when clicks
 is replaced with a save button. Once saved the table should re-render in non-edit mode. Let's look at making those
 changes now.
 
+### Refactoring the Table Widget, Mixins and Modes.
+
+There is a couple ways we could do this, one way would be to have modes for the entire table and the CellEditors as
+well for example VIEW, EDIT etc, and when a row is edited the table could iterate though the properties and call the
+Cell Editor again and pass the mode and the CellEditor could determine the mode. For now we're just going to put that
+logic (the mode for a row) into the table and handle whether we call a cell editor or the default rendering mode
+(just call getValue()) from the table.
+
+Additionally we're going to need the ability to determine which row is selected, remove that row from the table and
+add a new row at that location. We will also need to introduce the concept of a custom column, I refer to these types of
+elements as "mixins". Mixins are elements we need in the UI but are not tied to the actual data model or resident in
+the html. Later on we'll delve deeper into the subject of mixins but for now let's just look at adding a custom column
+concept to the table.
+
 
 
 

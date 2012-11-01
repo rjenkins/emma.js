@@ -332,6 +332,21 @@
       }
     }
 
+    Table.prototype.editRow = function (rowNumber) {
+      var data = this.input.contents[rowNumber];
+      var adapter = this.adapterFactory.adapt(data);
+      var rowValues = [];
+      var self = this;
+
+      input.getColumns().forEach(function (column) {
+        rowValues.push(adapter.getPropertyById(column.key).getCellEditor().render().html());
+      });
+
+      rowValues.push("<a class=\"tableRowEditLink\">save</a>");
+
+      $(container).find('> tbody > tr').eq(rowNumber).after(_.template(self.template.tableRow, { values:rowValues}));
+    }
+
     Table.prototype.render = function (input) {
 
       var input = input || this.input;
@@ -361,11 +376,9 @@
 
         $(tableBody).append(_.template(self.template.tableRow, { values:rowValues}))
           .find("tr").last().click(function () {
-//            console.log(adapter.getTarget());
             var myCol = $(this).index();
             var $tr = $(this).closest('tr');
             var myRow = $tr.index();
-            //console.log(myRow);
           });
 
         rowValues = [];
@@ -374,11 +387,11 @@
       $(content).append(tableBody);
 
       $(content).find(".tableRowEditLink").click(function () {
-        alert("hello");
-        var $tr = $(this).closest('tr');
-        var myRow = $tr.index();
-        alert(myRow);
-      })
+        var tr = $(this).closest('tr');
+        var rowIndex = tr.index();
+        $(tr).remove();
+        self.editRow(rowIndex);
+      });
 
     }
 
@@ -603,6 +616,12 @@
       this.columns.push({key:key, displayName:displayName});
       return this;
     }
+
+    TableItemProvider.prototype.setEditable = function (editable) {
+      this.editable = editable === true ? true : false;
+      return this;
+    }
+
 
     return new TableItemProvider();
   }

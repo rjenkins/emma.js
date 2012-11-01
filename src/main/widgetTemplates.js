@@ -101,6 +101,7 @@ window.JST['tableHeader'] = _.template(
     "<% _.each(getColumns(), function(column) { %>" +
     "<th><%= column.displayName %></th>" +
     "<% }); %>" +
+    "<% if(editable === true) { print('<th>Edit</th>') } %>" +
     "</tr></thead>"
 );
 
