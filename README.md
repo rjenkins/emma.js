@@ -2232,39 +2232,63 @@ and we'll add
 
   ...
 
-  Property.prototype.getCellEditor = function () {
-    return this.defaultCellEditorFactory(this.cellEditorType);
-  }
+   Property.prototype.getCellEditor = function () {
+      return this.defaultCellEditorFactory.getCellEditor(this);
+   }
+
 
   var CellEditorFactory = Emma.CellEditorFactory = function () {
 
-    return {
-      CHECK_BOX:function () {
-        return new Emma.CheckBoxInput(this, JST['checkBox']);
-      },
-      SELECT:function () {
-        return new Emma.Select(this, JST['select']);
-      },
-      SELECT_MULTIPLE:function () {
-        return new Emma.Select(this, JST['select']);
-      },
-      RADIO_INPUT:function () {
-        return new Emma.RadioInput(this, JST['inputRadio']);
-      },
-      TEXT_AREA:function () {
-        return new Emma.TextArea(this, JST['textArea']);
-      },
-      TEXT_INPUT:function () {
-        return  new Emma.TextInput(this, JST['inputText']);
-      }
-    }
-  }
+     var editorMap = {
+       CHECK_BOX:function (property) {
+         return new Emma.CheckBoxInput(property, JST['checkBox']);
+       },
+       SELECT:function (property) {
+         return new Emma.Select(property, JST['select']);
+       },
+       SELECT_MULTIPLE:function (property) {
+         return new Emma.Select(property, JST['select']);
+       },
+       RADIO_INPUT:function (property) {
+         return new Emma.RadioInput(property, JST['inputRadio']);
+       },
+       TEXT_AREA:function (property) {
+         return new Emma.TextArea(property, JST['textArea']);
+       },
+       TEXT_INPUT:function (property) {
+         return  new Emma.TextInput(property, JST['inputText']);
+       }
+     }
 
-  // Add a Default Cell Editor Factory to the Property Prototype
-  Property.prototype.defaultCellEditorFactory = CellEditorFactory();
+     return {
+       getCellEditor:function (property) {
+         return editorMap[property.cellEditorType](property)
+       }
+     }
+   }
+
+    // Add a Default Cell Editor Factory to the Property Prototype
+    Property.prototype.defaultCellEditorFactory = CellEditorFactory();
+
 ```
 
-Now all we have to do is modify our table render logic.
+Now all we have to do is modify our table render logic. Here's a simple pass.
+
+```javascript
+input.getContents().forEach(function (object) {
+  var adapter = self.adapterFactory.adapt(object);
+  input.getColumns().forEach(function (column) {
+    rowValues.push(adapter.getPropertyById(column.key).getCellEditor().render().html());
+  });
+```
+
+Here's a screenshot.
+
+![example8_first](https://raw.github.com/rjenkins/emma.js/master/img/example_8_first.png)
+
+
+
+
 
 
 
