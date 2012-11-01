@@ -69,15 +69,15 @@
   }
 
   // Public constructor function
-  var Property = Emma.Property = function (_id) {
+  var Property = Emma.Property = function (id) {
 
     // if not called with new
     if (!(this instanceof Property)) {
-      return new Property(_id);
+      return new Property(id);
     }
 
     this.adapter;
-    this.id = _id;
+    this.id = id;
     this.displayName;
     this.visibleInForm = true;
     this.visibleInTable = true;
@@ -92,8 +92,8 @@
     return this.id;
   };
 
-  Property.prototype.setAdapter = function (_adapter) {
-    this.adapter = _adapter;
+  Property.prototype.setAdapter = function (adapter) {
+    this.adapter = adapter;
     return this;
   }
 

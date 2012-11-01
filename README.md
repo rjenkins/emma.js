@@ -46,15 +46,15 @@ has the getValue() and setValue() functions.
 
 ```javascript
 // Public constructor function
-var Property = Emma.Property = function (_id) {
+var Property = Emma.Property = function (id) {
 
     // if not called with new
     if (!(this instanceof Property)) {
-      return new Property(_id);
+      return new Property(id);
     }
 
     this.adapter;
-    this.id = _id;
+    this.id = id;
 }
 
 // Setters provided for fluent pattern and
@@ -64,8 +64,8 @@ Property.prototype.getId = function () {
   return this.id;
 };
 
-Property.prototype.setAdapter = function (_adapter) {
-  this.adapter = _adapter;
+Property.prototype.setAdapter = function (adapter) {
+  this.adapter = adapter;
   return this;
 }
 
@@ -126,24 +126,15 @@ with Collections. For the moment let us disregard how these data resources are a
 a very simple implementation of the Resource pattern.
 
 ```javascript
-// Public constructor function
-var Resource = function () {
-
-  //if not called with new
-  if (!(this instanceof Resource)) {
-    return new Resource();
-  }
-
-  var contents = [];
-
-  this.getContents = function () {
-    return [];
+  // Use the module pattern for Resource allowing for Getter/Setter based access,
+  // but in extended versions we'll remove the setContents function from the public API
+  var Resource = Emma.Resource = function (contents) {
+    this.contents = contents || [];
   };
 
-  this.setContents = function (_contents) {
-    this.contents = _contents;
+  Resource.prototype.load = function () {
+    throw "Function not supported without override"
   }
-};
 ```
 
 ### A Simple Example - Using Adapters, Properties, and Resources
@@ -2295,11 +2286,6 @@ Ok, that's a bit better, but we probably don't want all the rows in edit mode al
 what we probably want is an additional column with an edit link that when clicks puts the row in edit mode and then
 is replaced with a save button. Once saved the table should re-render in non-edit mode. Let's look at making those
 changes now.
-
-
-
-
-
 
 
 
