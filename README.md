@@ -546,7 +546,7 @@ in widgets, we'll start by adding a displayName field.
 
 ```
 
-### Creating our TextInput Cell Editor
+### Creating the TextInput Cell Editor
 
 The TextInput has a constructor which accepts a property and an optional template. We create a new constructor function
 called TextInput and set it's prototype to a new CellEditor, we then update it's prototype.constructor and override the
@@ -582,7 +582,7 @@ var _TextInput = function (property, template) {
   }
 ```
 
-#### Mutating our data via the Property
+#### Mutating data via the Property Pattern
 
 You'll notice in render we also attached a keyup function to our input let's take a look
 at that more closely.
@@ -1287,7 +1287,7 @@ user object and modify our Properties to use these new Cell Editors.
 
 **src/test/example4/example4.html**
 
-```javascript
+```
 <!DOCTYPE html>
 <html>
 <head>
@@ -1420,7 +1420,7 @@ but there's still lots of room for improvement. Let's take a moment and look at 
 now we've got our logic for adapter creation hard-wired into the view itself, that's probably not a good idea. Let's
 take a pass at fixing that.
 
-### The Adapter Factory Pattern
+## The Adapter Factory Pattern
 
 The purpose of the Adapter Factory pattern is to decouple the logic of creating adapters from our view. The Adapter
 Factory pattern is essentially an abstract factory and we provide implementations that can be passed to widgets in
@@ -1795,7 +1795,7 @@ adapting the new datatype and redrawing itself, attaching all listeners as neede
 ![example6_save](https://raw.github.com/rjenkins/emma.js/master/img/example_6_save.png)
 
 
-### Tables, Lists, Trees and other Widgets
+## Resource Widget (Tables, Lists, Trees and others)
 
 So far we've just looked at the Form widget and it's designed (right now) to only deal with looking at one element
 so let's consider implementing some widgets that deal with lots of elements. For that we need to take a step back and
@@ -1841,7 +1841,7 @@ responsibilities or we could break ItemProviders out into different functions ba
 We'll going to choose the later but you could always choose to consolidate this functionality down to a smaller set
 of objects.
 
-### Abstract Item Provider
+### Abstract ItemProvider
 
 Here's a basic implementation of the Abstract Item Provider Pattern.
 
@@ -2202,7 +2202,7 @@ It's a common request to make tables or grids which are rich in functionality, i
 already have the Cell Editor library in place it shouldn't we to hard to get that working,
 right? Remember how our CellEditor creation logic was implemented in the property, let's move that into a new object.
 
-### The CellEditor Factory Pattern
+## The CellEditor Factory Pattern
 
 Just like Adapter Factories we can use the Abstract Factory pattern to create cell editors and use them in other
 places or allow us or users of our API to override Cell Editor instantiation logic. Here's the existing factory
