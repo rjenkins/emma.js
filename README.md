@@ -1,6 +1,6 @@
 # Overview
 
-*Frameworks and libraries come and go, abstraction and reusability do not.* - A wise old man.
+*Frameworks and libraries come and go. - A wise old man.*
 
 If you've worked on a project of any significant size you know managing complexity becomes increasing more difficult
 as the project grows and Javascript based User Interfaces are no exception. Many UI frameworks provide overarching
@@ -2205,7 +2205,7 @@ logic, let's add a public API for CellEditors and create a default one for our P
 
 **Remove the following**
 
-```javascript```
+```javascript
 Property.prototype.getCellEditor = function () {
     if (this.cellEditorType === CellEditor.CHECK_BOX) {
       return new Emma.CheckBoxInput(this, JST['checkBox']);
