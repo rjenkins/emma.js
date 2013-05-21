@@ -36,19 +36,19 @@ var Adapter = Emma.Adapter = function (_target) {
 }
 ```
 
-So reviewing this code we module pattern function for our adapter and it takes an argument called _target. We save the
-variable _target off into a private variable called target and we create getter and setter methods for it and expose
-on the returned API.
+The adapter forms the basis for our abstraction of accessing data. The adapter takes an argument called
+_target. We save the variable _target off into a private variable called target and we create getter and setter
+methods for it and expose on the returned API.
 
 Well there's not much to our adapter at the moment, so let's make it a bit more useful by introducing our next
 pattern Properties.
 
 ### The Property Pattern
 
-Property objects allow us to organize metadata associated with viewing the property of an object.
-Properties are retained in an adapter and the view will then be able to use this metadata to determine how to render
-an object in a view. Additionally our Property object retains a reference to it's parent adapter and
-has the getValue() and setValue() functions.
+Property objects allow us to create and organize metadata that describe the attributes of an object.
+Properties are retained in an adapter and will be used by the view to determine how to render an object in a view.
+Additionally our Property object retains a reference to it's parent adapter and has the getValue() and setValue()
+functions for mutating the underlying attribute.
 
 ```javascript
 // Public constructor function
