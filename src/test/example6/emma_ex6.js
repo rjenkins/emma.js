@@ -208,6 +208,10 @@
     this.adaptInternal = {};
   };
 
+  AdapterFactory.prototype.add = function (objectConstructor, adapterContructor) {
+    this.adaptInternal[objectConstructor] = adapterContructor;
+  }
+
   AdapterFactory.prototype.adapt = function (object) {
     var adaptFunction = this.adaptInternal[object.constructor]
     if (adaptFunction !== undefined) {
@@ -442,6 +446,4 @@
   Emma.CheckBoxInput = _CheckBoxInput;
   Emma.Select = _Select;
 
-}
-  )
-  ();
+})();

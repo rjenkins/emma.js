@@ -31,44 +31,42 @@ $(function () {
 
   with (Emma) {
 
+    // Our UserAdapter Constructor
+    var UserAdapter = function (object) {
+      return new Adapter(object)
+        .addProperty(new Property("first").setDisplayName("First"))
+        .addProperty(new Property("last").setDisplayName("Last"))
+        .addProperty(new Property("username").setDisplayName("Username"))
+        .addProperty(new Property("email").setDisplayName("Email"))
+        .addProperty(new Property("sex").setDisplayName("Sex")
+        .setOptions({
+          m:"Male",
+          f:"Female"
+        }).setCellEditorType(CellEditor.RADIO_INPUT))
+
+        .addProperty(new Property("additionalInfo").setDisplayName("More Info").setCellEditorType(CellEditor
+        .TEXT_AREA))
+
+        .addProperty(new Property("role").setDisplayName("Role")
+        .setOptions({
+          admin:"Administrator",
+          user:"User"
+        }).setCellEditorType(CellEditor.SELECT))
+
+        .addProperty(new Property("active").setDisplayName("Active").setCellEditorType(CellEditor.CHECK_BOX));
+    };
+
+    var CarAdapter = function (object) {
+      return new Adapter(object)
+        .addProperty(new Property("make").setDisplayName("Make"))
+        .addProperty(new Property("model").setDisplayName("Model"))
+        .addProperty(new Property("year").setDisplayName("Year"));
+    };
+
     MyApp.AdapterFactory = function () {
       var adapterFactory = new AdapterFactory();
-      adapterFactory.adaptInternal[User] = function (object) {
-        var userAdapter = new Adapter();
-        userAdapter.addProperty(new Property("first").setDisplayName("First"))
-          .addProperty(new Property("last").setDisplayName("Last"))
-          .addProperty(new Property("username").setDisplayName("Username"))
-          .addProperty(new Property("email").setDisplayName("Email"))
-
-          .addProperty(new Property("sex").setDisplayName("Sex")
-          .setOptions({
-            m:"Male",
-            f:"Female"
-          }).setCellEditorType(CellEditor.RADIO_INPUT))
-
-          .addProperty(new Property("additionalInfo").setDisplayName("More Info").setCellEditorType(CellEditor
-          .TEXT_AREA))
-
-          .addProperty(new Property("role").setDisplayName("Role")
-          .setOptions({
-            admin:"Administrator",
-            user:"User"
-          }).setCellEditorType(CellEditor.SELECT))
-
-          .addProperty(new Property("active").setDisplayName("Active").setCellEditorType(CellEditor.CHECK_BOX));
-
-        userAdapter.setTarget(object);
-        return userAdapter
-      }
-      adapterFactory.adaptInternal[Car] = function (object) {
-        var carAdapter = new Adapter();
-        carAdapter.addProperty(new Property("make").setDisplayName("Make"))
-          .addProperty(new Property("model").setDisplayName("Model"))
-          .addProperty(new Property("year").setDisplayName("Year"));
-        carAdapter.setTarget(object);
-        return carAdapter;
-      }
-
+      adapterFactory.add(User, UserAdapter);
+      adapterFactory.add(Car, CarAdapter)
       return adapterFactory;
     }
   }
