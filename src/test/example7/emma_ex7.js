@@ -520,6 +520,7 @@
     function TableItemProvider() {
       this.columns = [];
       this.caption = undefined;
+      this.editable = false;
     }
 
     TableItemProvider.prototype = new ItemProvider(resource);
@@ -539,6 +540,11 @@
 
     TableItemProvider.prototype.addColumn = function (key, displayName) {
       this.columns.push({key:key, displayName:displayName});
+      return this;
+    }
+
+    TableItemProvider.prototype.setEditable = function (editable) {
+      this.editable = editable === true ? true : false;
       return this;
     }
 

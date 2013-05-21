@@ -50,11 +50,11 @@ caption {
     display: none;
 }
 
-.tableRowEditLink:hover {
+.editLink:hover {
     cursor: pointer;
 }
 
-.tableRowEditLink {
+.editLink {
     padding-top: 6px;
 }
 

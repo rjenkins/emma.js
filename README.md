@@ -1,7 +1,13 @@
 # Overview
-If you've worked on a project of any significant size you know managing complexity becomes increasing difficult as the project grows and Javascript based User Interfaces are no exception. Many UI framework provide overarching patterns like MVC of MVP that give developers the ability to separate concerns on the macrolevel but provide little direction or guidance around the complexities of developing and maintaining highly complex web application and asynchronous user interfaces at the component level. 
+If you've worked on a project of any significant size you know managing complexity becomes increasing more difficult
+as the project grows and Javascript based User Interfaces are no exception. Many UI frameworks provide overarching
+patterns like MVC of MVP that give developers the ability to separate concerns on the macrolevel but provide little
+direction or guidance around the complexities of developing and maintaining web applications and asynchronous user
+interfaces at the component level.
 
-As a project grows the value of abstraction and reusability of a codebase increases. Reusability allows for rapid development of new features with confidence that they will function well because the abstract code has been tested extensively and is in use in other production features or products.
+As a project grows the value of abstraction and reusability of a codebase increases. Reusability allows for rapid
+development of new features with confidence that they will function well because the core code pieces of logic have
+been abstracted and tested extensively and are in use in other production features or products.
 
 ## The Data
 A fundamental problem when building any user interface is getting data into the UI. If you wish to do this in any reusable manner you have to find a way to abstract this logic, so enter our first pattern the Adapter.

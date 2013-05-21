@@ -155,8 +155,6 @@
   }
 
 
-  // Use the module pattern for Resource allowing for Getter/Setter based access,
-  // but in extended versions we'll remove the setContents function from the public API
   var Resource = Emma.Resource = function (contents) {
     this.contents = contents || [];
   };
@@ -206,7 +204,7 @@
     })
   };
 
-// Widgets and the like
+  // Widgets and the like
   var Widget = function (adapterFactory, container, input, template) {
 
     if (adapterFactory.constructor != AdapterFactory) {
@@ -332,38 +330,70 @@
       }
     }
 
-    Table.prototype.editRow = function (rowNumber) {
-      var data = this.input.contents[rowNumber];
+    Table.prototype.renderRow = function (rowNumber, mode, tableBody) {
+      var data = this.input.getContents()[rowNumber];
       var adapter = this.adapterFactory.adapt(data);
       var rowValues = [];
       var self = this;
 
       input.getColumns().forEach(function (column) {
-        rowValues.push(adapter.getPropertyById(column.key).getCellEditor().render().html());
+        if (mode === Widget.EDIT_MODE)
+          rowValues.push(adapter.getPropertyById(column.key).getCellEditor().render().html());
+        else
+          rowValues.push(adapter.getPropertyById(column.key).getValue());
       });
 
-      rowValues.push("<a class=\"tableRowEditLink\">save</a>");
-
-      $(container).find('> tbody > tr').eq(rowNumber).after(_.template(self.template.tableRow, { values:rowValues}));
+//      if (mode === Widget.EDIT_MODE) {
+//        rowValues.push(JST['simpleLink']({className:"saveLink", text:"Save"}));
+//        $(container).find('> tbody > tr').eq(rowNumber).after(_.template(self.template.tableRow, { values:rowValues}));
+//        $(container).find(".saveLink").click(function () {
+//          var tr = $(this).closest('tr');
+//          alert($(container).find(tr).length);
+//          var rowIndex = tr.index();
+//          $(tr).remove();
+//          self.renderRow(rowIndex, Widget.VIEW_MODE);
+//        });
+//      } else {
+//        rowValues.push(JST['simpleLink']({className:"editLink", text:"Edit"}));
+//        $(container).find('> tbody > tr').eq(rowNumber).after(_.template(self.template.tableRow, { values:rowValues}));
+//        $(container).find(".editLink").click(function () {
+//          var tr = $(this).closest('tr');
+//          var rowIndex = tr.index();
+//          $(tr).remove();
+//          self.renderRow(rowIndex, Widget.EDIT_MODE);
+//        });
+//      }
     }
 
     Table.prototype.render = function (input) {
 
+      // If input is not passed to the render function
+      // use the input that is currently set for this object
       var input = input || this.input;
 
+      // Empty out the current contents of this container
       var content = this.container;
       $(content).empty();
 
+      // If a caption is defined add that first
       if (input.getCaption() !== undefined) {
         $(content).append(this.template.tableCaption(input));
       }
 
+      // Now handle rendering table headers
       $(content).append(this.template.tableHeader(input));
 
+      // Get the tableBody template and initialize and empty
+      // array of row information
       var tableBody = $(JST['tableBody']);
       var rowValues = [];
       var self = this;
 
+      // forEach element in contents
+      // - adapt element
+      // - retrieve list of columns
+      // - forEach column
+      // - render contents of column and push into rowValues
       input.getContents().forEach(function (object) {
         var adapter = self.adapterFactory.adapt(object);
         input.getColumns().forEach(function (column) {
@@ -371,9 +401,10 @@
         });
 
         if (input.editable === true) {
-          rowValues.push("<a class=\"tableRowEditLink\">edit</a>");
+          rowValues.push(JST['simpleLink']({className:"editLink", text:"Edit"}));
         }
 
+        // Append Row to table with tableRow template and add click listener to columns
         $(tableBody).append(_.template(self.template.tableRow, { values:rowValues}))
           .find("tr").last().click(function () {
             var myCol = $(this).index();
@@ -384,13 +415,14 @@
         rowValues = [];
       });
 
+      // Append table to container
       $(content).append(tableBody);
 
-      $(content).find(".tableRowEditLink").click(function () {
+      $(content).find(".editLink").click(function () {
         var tr = $(this).closest('tr');
         var rowIndex = tr.index();
         $(tr).remove();
-        self.editRow(rowIndex);
+        self.renderRow(rowIndex, Widget.EDIT_MODE, tableBody);
       });
 
     }
@@ -622,7 +654,6 @@
       return this;
     }
 
-
     return new TableItemProvider();
   }
 
@@ -649,5 +680,6 @@
   Emma.Select = _Select;
   Emma.Table = _Table;
   Emma.TableItemProvider = _TableItemProvider;
-
-})();
+}
+  )
+  ();

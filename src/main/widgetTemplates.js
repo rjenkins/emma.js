@@ -116,7 +116,9 @@ window.JST['tableRow'] =
     "<% }); %>" +
     "</tr>";
 
-
+window.JST['simpleLink'] = _.template(
+  "<a class=\"<%= className %>\"><%= text %></a>"
+);
 
 
 
