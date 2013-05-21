@@ -1,6 +1,6 @@
 # Overview
 
-Frameworks and libraries come and go, abstraction and reusability are always here - A wise old man.
+*Frameworks and libraries come and go, abstraction and reusability do not.* - A wise old man.
 
 If you've worked on a project of any significant size you know managing complexity becomes increasing more difficult
 as the project grows and Javascript based User Interfaces are no exception. Many UI frameworks provide overarching
