@@ -1,4 +1,7 @@
 # Overview
+
+Frameworks and libraries come and go, abstraction and reusability are always here - A wise old man.
+
 If you've worked on a project of any significant size you know managing complexity becomes increasing more difficult
 as the project grows and Javascript based User Interfaces are no exception. Many UI frameworks provide overarching
 patterns like MVC of MVP that give developers the ability to separate concerns on the macrolevel but provide little
