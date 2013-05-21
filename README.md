@@ -285,14 +285,14 @@ Pavillion
 
 ## The View
 
-So why have we gone through all the trouble of building these objects for abstracting access for our data? We've done
-this so we can provide a common data access interface which with to build view components upon. Without a common data
-access abstraction layer our widgets will vary widely in design or become bound to the specifics of our data and we'll
-be back to struggling to find a way to abstract and reuse common pieces of code.
+We've gone through the trouble of creating the Adapter, Properties and Resource objects so that we may provide a
+common data access interface which with to build view components upon. Without a common data access abstraction layer
+our widgets will vary widely in design or become bound to the specifics of our data and we'll be back to struggling
+to find a way to abstract and reuse common pieces of code.
 
 ### Widget Patterns
 
-A widget is a reusable element of a graphical user interface. Widgets can range from very simple element,
+A widget is a reusable element of a graphical user interface. Widgets can range from very simple elements,
 a input box for example to complex composite elements like column tree widgets, grids,
 or forms embedded in tables. OK, so let's build some widgets to use our abstract data acess layers,
 let's start by looking at something not so glamours forms and CRUD interfaces. Even though that might seem boring
@@ -470,8 +470,8 @@ return content;
 ### Abstract Cell Editor Pattern
 
 Like Widgets, Cell Editors are reusable UI components, so technically that makes them widgets
-as well but their specifically designed to take and modify input from html elements.
-Let's create an constuctor function for our Cell Editors, we could have them extend Widget, but there's
+as well but they're specifically designed to take and modify input from html elements.
+Let's create a constuctor function for our Cell Editors, we could have them extend Widget, but there's
 not that much value in that so we're just going to create a new constructor.
 
 A Cell Editor takes a property and an template as constructor functions. Like Widget it also has a render function but
@@ -492,7 +492,7 @@ throws an exception if it isn't overriden.
     //No-Op
   }
 ```
-### Modifying Property
+### Modifying Properties
 
 We need to add some attributes to our property object to make it more useful for use
 in widgets, we'll start by adding a displayName field.
@@ -1433,8 +1433,12 @@ adapter for our model object.
 
 ```javascript
   var AdapterFactory = function () {
-    this.adaptInternal = {};
-  };
+      this.adaptInternal = {};
+    };
+
+  AdapterFactory.prototype.add = function (objectConstructor, adapterContructor) {
+    this.adaptInternal[objectConstructor] = adapterContructor;
+  }
 
   AdapterFactory.prototype.adapt = function (object) {
     var adaptFunction = this.adaptInternal[object.constructor]
@@ -1549,43 +1553,40 @@ $(function () {
 
 
   with (Emma) {
-    var UserAdapterFactory = function () {
 
-      this.adapt = function (object) {
-        if (object instanceof User) {
-          var userAdapter = new Adapter();
-          userAdapter.addProperty(new Property("first").setDisplayName("First"))
-            .addProperty(new Property("last").setDisplayName("Last"))
-            .addProperty(new Property("username").setDisplayName("Username"))
-            .addProperty(new Property("email").setDisplayName("Email"))
+    // Our UserAdapter Constructor
+    var UserAdapter = function (object) {
 
-            .addProperty(new Property("sex").setDisplayName("Sex")
-            .setOptions({
-              m:"Male",
-              f:"Female"
-            }).setCellEditorType(CellEditor.RADIO_INPUT))
+      var userAdapter = new Adapter(object);
 
-            .addProperty(new Property("additionalInfo").setDisplayName("More Info").setCellEditorType(CellEditor
-            .TEXT_AREA))
+      userAdapter.addProperty(new Property("first").setDisplayName("First"))
+        .addProperty(new Property("last").setDisplayName("Last"))
+        .addProperty(new Property("username").setDisplayName("Username"))
+        .addProperty(new Property("email").setDisplayName("Email"))
+        .addProperty(new Property("sex").setDisplayName("Sex")
+        .setOptions({
+          m:"Male",
+          f:"Female"
+        }).setCellEditorType(CellEditor.RADIO_INPUT))
 
-            .addProperty(new Property("role").setDisplayName("Role")
-            .setOptions({
-              admin:"Administrator",
-              user:"User"
-            }).setCellEditorType(CellEditor.SELECT))
+        .addProperty(new Property("additionalInfo").setDisplayName("More Info").setCellEditorType(CellEditor
+        .TEXT_AREA))
 
-            .addProperty(new Property("active").setDisplayName("Active").setCellEditorType(CellEditor.CHECK_BOX));
+        .addProperty(new Property("role").setDisplayName("Role")
+        .setOptions({
+          admin:"Administrator",
+          user:"User"
+        }).setCellEditorType(CellEditor.SELECT))
 
-          userAdapter.setTarget(object);
-          return userAdapter
-        }
-      }
+        .addProperty(new Property("active").setDisplayName("Active").setCellEditorType(CellEditor.CHECK_BOX));
+
+      return userAdapter;
     }
 
-
-    MyApp.UserAdapterFactory = function () {
-      UserAdapterFactory.prototype = new AdapterFactory();
-      return new UserAdapterFactory();
+    MyApp.AdapterFactory = function () {
+      var adapterFactory = new AdapterFactory();
+      adapterFactory.add(User, UserAdapter);
+      return adapterFactory;
     }
   }
 });
