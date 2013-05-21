@@ -1556,10 +1556,8 @@ $(function () {
 
     // Our UserAdapter Constructor
     var UserAdapter = function (object) {
-
-      var userAdapter = new Adapter(object);
-
-      userAdapter.addProperty(new Property("first").setDisplayName("First"))
+      return new Adapter(object)
+        .addProperty(new Property("first").setDisplayName("First"))
         .addProperty(new Property("last").setDisplayName("Last"))
         .addProperty(new Property("username").setDisplayName("Username"))
         .addProperty(new Property("email").setDisplayName("Email"))
@@ -1579,8 +1577,6 @@ $(function () {
         }).setCellEditorType(CellEditor.SELECT))
 
         .addProperty(new Property("active").setDisplayName("Active").setCellEditorType(CellEditor.CHECK_BOX));
-
-      return userAdapter;
     }
 
     MyApp.AdapterFactory = function () {
