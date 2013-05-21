@@ -1520,9 +1520,9 @@ In **example5.main.js** we're going to start to stub out an actual application. 
 called MyApp and attach it to window, we'll also create a MyApp.model and create a proper User function to create a
 User object with.
 
-Finally we'll implement an AdapterFactory called UserAdapterFactory and implement our adapt function. Here we'll
-check to see if the type of object that's being adapted is a User, if so we'll create a new UserAdapter,
-set it's target to our User object and return the adapter.
+Finally we'll create a constructor to return an instance of an AdapterFactory called MyApp.AdapterFactory.
+We'll add a mapping for User objects with the call to adapterFactory.add so we'll create a new UserAdapter
+whenever we're passed a User object for adapting.
 
 **src/test/example5/exampl5.main.js**
 
@@ -1592,7 +1592,7 @@ $(function () {
 });
 ```
 
-In **example5.view.js** we'll create a new User and instantiate our form, passing in the new UserAdapterFactory
+In **example5.view.js** we create a new User and instantiate our form, passing in a new MyApp.AdapterFactory
 object, our container and our user object.
 
 ```javascript
@@ -1662,7 +1662,7 @@ Finally here's what our **example5.html** looks like with accompanied screenshot
 
 ### Using Adapter Factories
 
-We can use Adapter Factories to  adapt many different types of objects and create different factories that return
+We can use Adapter Factories to adapt many different types of objects and create different factories that return
 different adapters for different circumstances. Let's add a new data type call Car to our examples and add some
 buttons that allow us to switch between editing a User and a Car. Let's create a new example called example6 and
 modify our main.js
