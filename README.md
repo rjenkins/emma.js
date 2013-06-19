@@ -1822,19 +1822,18 @@ objects of a given type.
     }
   };
 ```
-
-So it's pretty obvious that there is a relationship between resources and a List or Table widget and just like our
-previous examples we need the ability to adapt this structure to our view, so we're going to introduce a new pattern
-called am ItemProvider.
+It's  obvious that there is a relationship between resources and a List or Table widget and just like our
+previous examples we need the ability to adapt this data structure to our view, so we're going to introduce a new
+pattern called the ItemProvider.
 
 ## The ItemProvider Pattern
 
 The purpose of the ItemProvider pattern is to adapt Resources to Widgets. Like Adapters the ItemProvider contain meta
 data needed by the widget for rendering and also retrain a reference to an underlying resource. Like anything else
-there is a few ways we could implement this. One way would be to have a single ItemProvider with lots of different
+there are a few ways we could implement this. One way would be to have a single ItemProvider with lots of different
 responsibilities or we could break ItemProviders out into different functions based off what they're providing for.
-We'll going to choose the later but you could always choose to consolidate this functionality down to a smaller set
-of objects.
+For these examples we're going to choose the later but you could always decide to consolidate this functionality down
+to a smaller set of objects.
 
 ### Abstract ItemProvider
 
@@ -2134,13 +2133,6 @@ with the table.
 /**
  * Created by JetBrains WebStorm.
  * User: rjenkins
- * Date: 10/31/12
- * Time: 5:24 AM
- * To change this template use File | Settings | File Templates.
- */
-/**
- * Created by JetBrains WebStorm.
- * User: rjenkins
  * Date: 10/29/12
  * Time: 8:58 AM
  * To change this template use File | Settings | File Templates.
@@ -2194,13 +2186,13 @@ $(function () {
 ### Making the Table editable.
 
 It's a common request to make tables or grids which are rich in functionality, including editting and seeing as we
-already have the Cell Editor library in place it shouldn't we to hard to get that working,
+already have the Cell Editor library in place it shouldn't be to hard to get that working,
 right? Remember how our CellEditor creation logic was implemented in the property, let's move that into a new object.
 
 ## The CellEditor Factory Pattern
 
 Just like Adapter Factories we can use the Abstract Factory pattern to create cell editors and use them in other
-places or allow us or users of our API to override Cell Editor instantiation logic. Here's the existing factory
+places or allow users of our API to override Cell Editor instantiation logic. Here's the existing factory
 logic, let's add a public API for CellEditors and create a default one for our Properties.
 
 **Remove the following**
